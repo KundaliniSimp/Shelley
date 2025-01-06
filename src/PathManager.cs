@@ -18,6 +18,8 @@ namespace CodeCraftersShell
             foreach (string dir in directories) {
                 string fullPath = dir + ShellConstants.ENV_DIR_SEPARATOR + exeName;
 
+                Console.WriteLine(fullPath);
+
                 if (File.Exists(fullPath + ShellConstants.EXT_EXE)) {
                     return fullPath;
                 }
