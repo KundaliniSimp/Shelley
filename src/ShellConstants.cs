@@ -13,6 +13,7 @@
         public const string ENV_VAR_PATH = "PATH";
         public const string ENV_VAR_PATH_SEPARATOR = ":";
         public const string EXT_EXE = ".exe";
+        public const string ENV_DIR_SEPARATOR = "/";
         public static readonly HashSet<string> BUILTINS = new([CMD_ECHO, CMD_EXIT, CMD_TYPE]);
     }
 }
