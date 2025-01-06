@@ -16,7 +16,7 @@ namespace CodeCraftersShell
         public string? GetExecutablePath(string exeName) {
 
             foreach (string dir in directories) {
-                string fullPath = dir + ShellConstants.ENV_DIR_SEPARATOR + exeName;
+                string fullPath = $"{dir}{ShellConstants.ENV_DIR_SEPARATOR}{exeName}";
 
                 if (File.Exists(fullPath)) {
                     return fullPath;

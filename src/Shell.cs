@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace CodeCraftersShell
 {
@@ -64,7 +65,13 @@ namespace CodeCraftersShell
                 case ShellConstants.CMD_ECHO: return CmdEcho(userInput);
                 case ShellConstants.CMD_EXIT: isRunning = false; return null;
                 case ShellConstants.CMD_TYPE: return CmdType(arguments[0]);
-                default: return $"{command}: {ShellConstants.RESP_INVALID_CMD}";
+                default:
+                   if (CmdTryRun(command, userInput)) {
+                        return null;
+                   }
+                   else { 
+                        return $"{command}: {ShellConstants.RESP_INVALID_CMD}";
+                   }
             }
         }
 
@@ -102,6 +109,20 @@ namespace CodeCraftersShell
             }
 
             return $"{command}: {ShellConstants.RESP_INVALID_TYPE}";
+        }
+
+        bool CmdTryRun(string command, string fullInput) {
+
+            string? executablePath = pathManager.GetExecutablePath(command);
+
+            if (executablePath == null) {
+                return false;
+            }
+
+            string externalArguments = fullInput.Substring(command.Length + 1);
+            Process.Start(executablePath, externalArguments);
+
+            return true;
         }
     }
 }
