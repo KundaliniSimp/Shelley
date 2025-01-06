@@ -5,15 +5,25 @@ namespace CodeCraftersShell
 {
     class PathManager {
 
-        string[] directories;
+        readonly string[]? directories;
+        readonly string? userHomeDir;
 
-        public PathManager(string envPath = "") {
+        public PathManager() {
 
-            directories = envPath.Split(ShellConstants.ENV_VAR_PATH_SEPARATOR);
-            
+            string? envPath = Environment.GetEnvironmentVariable(ShellConstants.ENV_VAR_PATH);
+
+            if (envPath != null) {
+                directories = envPath.Split(ShellConstants.ENV_VAR_PATH_SEPARATOR);
+            }
+
+            userHomeDir = Environment.GetEnvironmentVariable(ShellConstants.ENV_VAR_HOME);
         }
 
         public string? GetExecutablePath(string exeName) {
+
+            if (directories == null) {
+                goto exit;
+            }
 
             foreach (string dir in directories) {
                 string fullPath = $"{dir}{ShellConstants.ENV_DIR_SEPARATOR}{exeName}";
@@ -23,6 +33,7 @@ namespace CodeCraftersShell
                 }
             }
 
+        exit:
             return null;
         }
 
@@ -31,6 +42,13 @@ namespace CodeCraftersShell
         }
 
         public bool TrySetDir(string userDir) {
+
+            if (userDir.Length == 1 && userDir[0] == ShellConstants.SYMB_HOME) {
+                if (userHomeDir != null) {
+                    Environment.CurrentDirectory = userHomeDir;
+                    return true;
+                }
+            }
 
             if (Directory.Exists(userDir)) {
                 Environment.CurrentDirectory = userDir;

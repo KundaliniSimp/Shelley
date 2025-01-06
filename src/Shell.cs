@@ -11,15 +11,9 @@ namespace CodeCraftersShell
 
         public Shell() {
 
+            Console.Title = ShellConstants.APP_TITLE;
             isRunning = false;
-            string? envPath = Environment.GetEnvironmentVariable(ShellConstants.ENV_VAR_PATH);
-
-            if (envPath != null) {
-                pathManager = new(envPath);
-            }
-            else {
-                pathManager = new();
-            }
+            pathManager = new();
 
         }
 
@@ -50,7 +44,7 @@ namespace CodeCraftersShell
             string? userInput = Console.ReadLine();
 
             if (userInput != null) {
-                return userInput;
+                return userInput.TrimStart();
             }
             return "";
         }
@@ -67,6 +61,7 @@ namespace CodeCraftersShell
                 case ShellConstants.CMD_TYPE: return CmdType(arguments[0]);
                 case ShellConstants.CMD_PWD: return CmdPwd();
                 case ShellConstants.CMD_CD: return CmdCd(arguments[0]);
+                case ShellConstants.CMD_CLEAR: CmdClear(); return null;
                 default:
                    if (CmdTryRun(command, userInput)) {
                         return null;
@@ -139,6 +134,11 @@ namespace CodeCraftersShell
             }
 
             return $"{ShellConstants.CMD_CD}: {userDir}: {ShellConstants.RESP_INVALID_DIR}";
+        }
+
+        void CmdClear() {
+
+            Console.Clear();
         }
     }
 }
