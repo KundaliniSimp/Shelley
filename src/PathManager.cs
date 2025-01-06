@@ -30,7 +30,7 @@ namespace CodeCraftersShell
             return Environment.CurrentDirectory;
         }
 
-        public bool TrySetAbsoluteDir(string userDir) {
+        public bool TrySetDir(string userDir) {
 
             if (Directory.Exists(userDir)) {
                 Environment.CurrentDirectory = userDir;
