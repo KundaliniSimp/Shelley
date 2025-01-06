@@ -11,10 +11,6 @@ namespace CodeCraftersShell
 
             directories = envPath.Split(ShellConstants.ENV_VAR_PATH_SEPARATOR);
 
-            foreach (string dir in directories) {
-                Console.WriteLine(dir);
-            }
-            Console.WriteLine(envPath);
         }
 
         public string? GetExecutablePath(string exeName) {
