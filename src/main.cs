@@ -4,3 +4,5 @@ using CodeCraftersShell;
 
 Shell shell = new();
 shell.Run();
+
+return 0;
