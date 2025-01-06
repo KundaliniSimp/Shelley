@@ -9,7 +9,7 @@ namespace CodeCraftersShell
 
         public PathManager(string envPath = "") {
 
-            directories = envPath.Split(";");
+            directories = envPath.Split(ShellConstants.ENV_VAR_PATH_SEPARATOR);
 
             foreach (string dir in directories) {
                 Console.WriteLine(dir);
