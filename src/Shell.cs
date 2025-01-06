@@ -66,6 +66,7 @@ namespace CodeCraftersShell
                 case ShellConstants.CMD_EXIT: isRunning = false; return null;
                 case ShellConstants.CMD_TYPE: return CmdType(arguments[0]);
                 case ShellConstants.CMD_PWD: return CmdPwd();
+                case ShellConstants.CMD_CD: return CmdCd(arguments[0]);
                 default:
                    if (CmdTryRun(command, userInput)) {
                         return null;
@@ -127,7 +128,17 @@ namespace CodeCraftersShell
         }
 
         string CmdPwd() {
+
             return pathManager.GetCurrentDir();
+        }
+
+        string? CmdCd(string userDir) {
+
+            if (pathManager.TrySetAbsoluteDir(userDir)) {
+                return null;
+            }
+
+            return $"{ShellConstants.CMD_CD}: {userDir}: {ShellConstants.RESP_INVALID_DIR}";
         }
     }
 }

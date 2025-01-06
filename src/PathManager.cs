@@ -6,12 +6,11 @@ namespace CodeCraftersShell
     class PathManager {
 
         string[] directories;
-        string currentDir;
 
         public PathManager(string envPath = "") {
 
             directories = envPath.Split(ShellConstants.ENV_VAR_PATH_SEPARATOR);
-            currentDir = Environment.CurrentDirectory;
+            
         }
 
         public string? GetExecutablePath(string exeName) {
@@ -28,7 +27,17 @@ namespace CodeCraftersShell
         }
 
         public string GetCurrentDir() {
-            return currentDir;
+            return Environment.CurrentDirectory;
+        }
+
+        public bool TrySetAbsoluteDir(string userDir) {
+
+            if (Directory.Exists(userDir)) {
+                Environment.CurrentDirectory = userDir;
+                return true;
+            }
+
+            return false;
         }
     } 
 }
