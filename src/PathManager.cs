@@ -14,6 +14,7 @@ namespace CodeCraftersShell
             foreach (string dir in directories) {
                 Console.WriteLine(dir);
             }
+            Console.WriteLine(envPath);
         }
 
         public string? GetExecutablePath(string exeName) {
