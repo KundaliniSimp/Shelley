@@ -47,12 +47,13 @@ namespace CodeCraftersShell
         string? Eval(string userInput) {
 
             string[] parsedInput = userInput.Split(" ");
-            string command = parsedInput[0];
             string[] arguments = GetArguments(parsedInput);
+            string command = parsedInput[0];
 
             switch (command) {
                 case ShellConstants.CMD_ECHO: return Echo(userInput);
                 case ShellConstants.CMD_EXIT: isRunning = false; return null;
+                case ShellConstants.CMD_TYPE: return _Type(arguments[0]);
                 default: return $"{command}: {ShellConstants.RESP_INVALID_CMD}";
             }
         }
@@ -76,6 +77,16 @@ namespace CodeCraftersShell
         string Echo(string userInput) {
 
             return userInput.Substring(ShellConstants.CMD_ECHO.Length + 1);
+        }
+
+        string _Type(string command) {
+
+            if (ShellConstants.BUILTINS.Contains(command)) {
+                return $"{command} {ShellConstants.RESP_VALID_TYPE}";
+            }
+            else {
+                return $"{command}: {ShellConstants.RESP_INVALID_TYPE}";
+            }
         }
     }
 }
