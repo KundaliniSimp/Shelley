@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Sockets;
+using CodeCraftersShell;
 
-Console.Write("$ ");
-Console.ReadLine();
+Shell shell = new();
+shell.Run();
