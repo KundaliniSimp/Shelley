@@ -24,7 +24,7 @@ namespace CodeCraftersShell
         void REPLoop() {
 
             string userInput = Read();
-            string response = Eval(userInput);
+            string? response = Eval(userInput);
 
             if (response == null) {
                 return;
@@ -48,15 +48,34 @@ namespace CodeCraftersShell
 
             string[] parsedInput = userInput.Split(" ");
             string command = parsedInput[0];
+            string[] arguments = GetArguments(parsedInput);
 
             switch (command) {
-                case "exit": isRunning = false; return null;
+                case ShellConstants.CMD_ECHO: return Echo(userInput);
+                case ShellConstants.CMD_EXIT: isRunning = false; return null;
                 default: return $"{command}: {ShellConstants.RESP_INVALID_CMD}";
             }
         }
 
         void Print(string response) {
+            
             Console.WriteLine(response);
+        }
+
+        string[] GetArguments(string[] parsedInput) {
+
+            string[] arguments = new string[parsedInput.Length - 1];
+
+            for (int i = 1; i < parsedInput.Length; ++i) {
+                arguments[i - 1] = parsedInput[i];
+            }
+
+            return arguments;
+        }
+
+        string Echo(string userInput) {
+
+            return userInput.Substring(ShellConstants.CMD_ECHO.Length + 1);
         }
     }
 }

@@ -2,8 +2,9 @@
 {
     static class ShellConstants
     {
-        static public readonly char SYMB_PROMPT = '$';
-        static public readonly string RESP_INVALID_CMD = "command not found";
-
+        public const char SYMB_PROMPT = '$';
+        public const string RESP_INVALID_CMD = "command not found";
+        public const string CMD_ECHO = "echo";
+        public const string CMD_EXIT = "exit";
     }
 }
