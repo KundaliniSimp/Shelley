@@ -30,7 +30,7 @@ namespace CodeCraftersShell
 
         string Read() {
 
-            Console.WriteLine($"{ShellConstants.SYMB_PROMPT} ");
+            Console.Write($"{ShellConstants.SYMB_PROMPT} ");
             return Console.ReadLine();
         }
 
