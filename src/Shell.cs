@@ -134,7 +134,7 @@ namespace CodeCraftersShell
 
         string? CmdCd(string userDir) {
 
-            if (pathManager.TrySetAbsoluteDir(userDir)) {
+            if (pathManager.TrySetDir(userDir)) {
                 return null;
             }
 
