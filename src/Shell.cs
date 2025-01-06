@@ -65,6 +65,7 @@ namespace CodeCraftersShell
                 case ShellConstants.CMD_ECHO: return CmdEcho(userInput);
                 case ShellConstants.CMD_EXIT: isRunning = false; return null;
                 case ShellConstants.CMD_TYPE: return CmdType(arguments[0]);
+                case ShellConstants.CMD_PWD: return CmdPwd();
                 default:
                    if (CmdTryRun(command, userInput)) {
                         return null;
@@ -123,6 +124,10 @@ namespace CodeCraftersShell
             Process.Start(executablePath, externalArguments);
 
             return true;
+        }
+
+        string CmdPwd() {
+            return pathManager.GetCurrentDir();
         }
     }
 }
