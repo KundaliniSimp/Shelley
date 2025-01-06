@@ -6,10 +6,20 @@ namespace CodeCraftersShell
     {
 
         bool isRunning;
+        PathManager pathManager;
 
         public Shell() {
 
             isRunning = false;
+            string? envPath = Environment.GetEnvironmentVariable(ShellConstants.ENV_VAR_PATH);
+
+            if (envPath != null) {
+                pathManager = new(envPath);
+            }
+            else {
+                pathManager = new();
+            }
+
         }
 
         public void Run() {
@@ -51,9 +61,9 @@ namespace CodeCraftersShell
             string command = parsedInput[0];
 
             switch (command) {
-                case ShellConstants.CMD_ECHO: return Echo(userInput);
+                case ShellConstants.CMD_ECHO: return CmdEcho(userInput);
                 case ShellConstants.CMD_EXIT: isRunning = false; return null;
-                case ShellConstants.CMD_TYPE: return _Type(arguments[0]);
+                case ShellConstants.CMD_TYPE: return CmdType(arguments[0]);
                 default: return $"{command}: {ShellConstants.RESP_INVALID_CMD}";
             }
         }
@@ -74,19 +84,24 @@ namespace CodeCraftersShell
             return arguments;
         }
 
-        string Echo(string userInput) {
+        string CmdEcho(string userInput) {
 
             return userInput.Substring(ShellConstants.CMD_ECHO.Length + 1);
         }
 
-        string _Type(string command) {
+        string CmdType(string command) {
 
             if (ShellConstants.BUILTINS.Contains(command)) {
                 return $"{command} {ShellConstants.RESP_VALID_TYPE}";
             }
-            else {
-                return $"{command}: {ShellConstants.RESP_INVALID_TYPE}";
+
+            string? executablePath = pathManager.GetExecutablePath(command);
+
+            if (executablePath != null) {
+                return $"{command} {ShellConstants.RESP_VALID_PATH} {executablePath}";
             }
+
+            return $"{command}: {ShellConstants.RESP_INVALID_TYPE}";
         }
     }
 }

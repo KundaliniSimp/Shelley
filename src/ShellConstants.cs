@@ -9,6 +9,9 @@
         public const string RESP_INVALID_CMD = "command not found";
         public const string RESP_VALID_TYPE = "is a shell builtin";
         public const string RESP_INVALID_TYPE = "not found";
-        public static readonly string[] BUILTINS = { CMD_ECHO, CMD_EXIT, CMD_TYPE };
+        public const string RESP_VALID_PATH = "is";
+        public const string ENV_VAR_PATH = "PATH";
+        public const string EXT_EXE = ".exe";
+        public static readonly HashSet<string> BUILTINS = new([CMD_ECHO, CMD_EXIT, CMD_TYPE]);
     }
 }
