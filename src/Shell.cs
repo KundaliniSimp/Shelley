@@ -93,7 +93,7 @@ namespace CodeCraftersShell
                 return null;
             }
 
-            string parsedInput = ParseQuotes(userInput, ShellConstants.CMD_ECHO.Length);
+            string parsedInput = ParseInput(userInput, ShellConstants.CMD_ECHO.Length);
 
             return parsedInput;
         }
@@ -119,7 +119,7 @@ namespace CodeCraftersShell
             return $"{command}: {ShellConstants.RESP_INVALID_TYPE}";
         }
 
-        string ParseQuotes(string userInput, int commandLength) {
+        string ParseInput(string userInput, int commandLength) {
 
             string parsedInput = "";
 
@@ -127,7 +127,7 @@ namespace CodeCraftersShell
                 return parsedInput;
             }
 
-            userInput = userInput.Substring(commandLength + 1);
+            userInput = userInput.Substring(commandLength + 1).Trim();
 
             for (int i = 0; i < userInput.Length; ++i) {
                 if (userInput[i] == ShellConstants.SYMB_QUOTE_SINGLE) {
@@ -140,6 +140,12 @@ namespace CodeCraftersShell
                             i = endQuote + 1;
                             continue;
                         }
+                    }
+                }
+
+                if (Char.IsWhiteSpace(userInput[i])) {
+                    if (Char.IsWhiteSpace(userInput[i - 1])) {
+                        continue;
                     }
                 }
 
@@ -157,7 +163,7 @@ namespace CodeCraftersShell
                 return false;
             }
 
-            string externalArguments = ParseQuotes(userInput, command.Length);
+            string externalArguments = ParseInput(userInput, command.Length);
             Process.Start(executablePath, externalArguments);
 
             return true;

@@ -5,6 +5,7 @@
         public const char SYMB_PROMPT = '$';
         public const char SYMB_HOME = '~';
         public const char SYMB_QUOTE_SINGLE = '\'';
+        public const string SYMB_WHITESPACE = " ";
         public const string APP_TITLE = "LiteShell";
         public const string CMD_ECHO = "echo";
         public const string CMD_EXIT = "exit";
