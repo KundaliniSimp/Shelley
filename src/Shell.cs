@@ -141,6 +141,9 @@ namespace CodeCraftersShell
                             continue;
                         }
                     }
+                    else {
+                        continue;
+                    }
                 }
 
                 if (Char.IsWhiteSpace(userInput[i])) {
