@@ -137,7 +137,7 @@ namespace CodeCraftersShell
                     if (endQuote > -1) {
                         if (endQuote > startQuote + 1) {
                             parsedInput += userInput.Substring(startQuote + 1, endQuote - (startQuote + 1));
-                            i = endQuote + 1;
+                            i = endQuote;
                             continue;
                         }
                     }
