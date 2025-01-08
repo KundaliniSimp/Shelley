@@ -50,19 +50,18 @@ namespace CodeCraftersShell
 
         string? Eval(string userInput) {
 
-            string[] splitInput = userInput.Split(" ");
-            string[] arguments = GetArguments(splitInput);
-            string command = splitInput[0];
+            string[] arguments = ParseInput(userInput);
+            string command = arguments[0];
 
             switch (command) {
-                case ShellConstants.CMD_ECHO: return CmdEcho(userInput);
+                case ShellConstants.CMD_ECHO: return CmdEcho(arguments);
                 case ShellConstants.CMD_EXIT: isRunning = false; return null;
                 case ShellConstants.CMD_TYPE: return CmdType(arguments);
                 case ShellConstants.CMD_PWD: return CmdPwd();
                 case ShellConstants.CMD_CD: return CmdCd(arguments);
                 case ShellConstants.CMD_CLEAR: CmdClear(); return null;
                 default:
-                   if (CmdTryRun(command, userInput)) {
+                   if (CmdTryRun(arguments)) {
                         return null;
                    }
                    else { 
@@ -76,35 +75,32 @@ namespace CodeCraftersShell
             Console.WriteLine(response);
         }
 
-        string[] GetArguments(string[] parsedInput) {
+        string? CmdEcho(string[] arguments) {
 
-            string[] arguments = new string[parsedInput.Length - 1];
-
-            for (int i = 1; i < parsedInput.Length; ++i) {
-                arguments[i - 1] = parsedInput[i];
-            }
-
-            return arguments;
-        }
-
-        string? CmdEcho(string userInput) {
-
-            if (userInput.Length < ShellConstants.CMD_ECHO.Length + 1) {
+            if (arguments.Length == 1) {
                 return null;
             }
 
-            string parsedInput = ParseInput(userInput, ShellConstants.CMD_ECHO.Length);
+            string output = "";
 
-            return parsedInput;
+            for (int i = 1; i < arguments.Length; ++i) {
+                output += arguments[i];
+
+                if (i < arguments.Length - 1) {
+                    output += ShellConstants.SYMB_WHITESPACE;
+                }
+            }
+
+            return output;
         }
 
         string? CmdType(string[] arguments) {
 
-            if (arguments.Length == 0) {
+            if (arguments.Length < 2) {
                 return null;
             }
 
-            string command = arguments[0];
+            string command = arguments[1];
 
             if (ShellConstants.BUILTINS.Contains(command)) {
                 return $"{command} {ShellConstants.RESP_VALID_TYPE}";
@@ -119,55 +115,92 @@ namespace CodeCraftersShell
             return $"{command}: {ShellConstants.RESP_INVALID_TYPE}";
         }
 
-        string ParseInput(string userInput, int commandLength) {
+        string[] ParseInput(string userInput) {
 
-            string parsedInput = "";
-
-            if (userInput.Length < commandLength + 1) {
-                return parsedInput;
-            }
-
-            userInput = userInput.Substring(commandLength + 1).Trim();
+            List<string> arguments = new();
+            string currentArg = "";
+            userInput = userInput.Trim();
 
             for (int i = 0; i < userInput.Length; ++i) {
-                if (userInput[i] == ShellConstants.SYMB_QUOTE_SINGLE) {
-                    int startQuote = i;
-                    int endQuote = userInput.IndexOf(ShellConstants.SYMB_QUOTE_SINGLE, startQuote + 1);
-
-                    if (endQuote > -1) {
-                        if (endQuote > startQuote + 1) {
-                            parsedInput += userInput.Substring(startQuote + 1, endQuote - (startQuote + 1));
-                            i = endQuote;
-                            continue;
-                        }
-                    }
-                    else {
-                        continue;
-                    }
-                }
 
                 if (Char.IsWhiteSpace(userInput[i])) {
-                    if (Char.IsWhiteSpace(userInput[i - 1])) {
-                        continue;
+                    if (currentArg.Length > 0) {
+                        arguments.Add(currentArg);
+                        currentArg = "";
+                    }
+
+                    while (Char.IsWhiteSpace(userInput[i])) {
+                        ++i;
+                    }
+
+                    i -= 1;
+                    continue;
+                }
+
+                if (userInput[i] != ShellConstants.SYMB_QUOTE_SINGLE) {
+                    currentArg += userInput[i];
+                    continue;
+                }
+
+                int openQuote = i;
+                int closeQuote = userInput.IndexOf(ShellConstants.SYMB_QUOTE_SINGLE, openQuote + 1);
+
+                if (closeQuote == -1) {
+                    currentArg += userInput[i];
+                    continue;
+                }
+
+                bool concatPrevious = false;
+
+                if (i > 0 && userInput[i - 1] == ShellConstants.SYMB_QUOTE_SINGLE) {
+                    concatPrevious = true;
+                }
+
+                if (currentArg.Length > 0) {
+                    arguments.Add(currentArg);
+                    currentArg = "";
+                }
+
+                if (closeQuote - openQuote > 1) {
+                    string literal = userInput.Substring(openQuote + 1, closeQuote - (openQuote + 1));
+
+                    if (concatPrevious) {
+                        arguments[arguments.Count - 1] = arguments[arguments.Count - 1] + literal;
+                    }
+                    else {
+                        arguments.Add(literal);
                     }
                 }
 
-                parsedInput += userInput[i];
+                i = closeQuote;
             }
 
-            return parsedInput;
+            if (currentArg.Length > 0) {
+                arguments.Add(currentArg);
+            }
+
+            return arguments.ToArray();
+            
         }
 
-        bool CmdTryRun(string command, string userInput) {
+        bool CmdTryRun(string[] arguments) {
 
+            string command = arguments[0];
             string? executablePath = pathManager.GetExecutablePath(command);
 
             if (executablePath == null) {
                 return false;
             }
 
-            string externalArguments = ParseInput(userInput, command.Length);
-            Process.Start(executablePath, externalArguments);
+            ProcessStartInfo processConfig = new(command);
+
+            if (arguments.Length > 1) {
+                for (int i = 1; i < arguments.Length; ++i) {
+                    processConfig.ArgumentList.Add(arguments[i]);
+                }
+            }
+
+            Process.Start(processConfig);
 
             return true;
         }
@@ -179,11 +212,11 @@ namespace CodeCraftersShell
 
         string? CmdCd(string[] arguments) {
 
-            if (arguments.Length == 0) {
+            if (arguments.Length < 2) {
                 return null;
             }
 
-            string userDir = arguments[0];
+            string userDir = arguments[1];
 
             if (pathManager.TrySetDir(userDir)) {
                 return null;
