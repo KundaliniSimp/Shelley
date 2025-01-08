@@ -200,7 +200,13 @@ namespace CodeCraftersShell
                 }
             }
 
-            Process.Start(processConfig);
+            Process? currentProcess = Process.Start(processConfig);
+
+            if (currentProcess == null) {
+                return true;
+            }
+
+            while (!currentProcess.HasExited) {}
 
             return true;
         }
