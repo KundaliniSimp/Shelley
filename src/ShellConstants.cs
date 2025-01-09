@@ -27,5 +27,6 @@
         public const int SLEEP_INTERVAL = 100;
         public static readonly HashSet<string> BUILTINS = new([CMD_ECHO, CMD_EXIT, CMD_TYPE, CMD_PWD, CMD_CD, CMD_CLEAR]);
         public static readonly HashSet<char> SYMB_QUOTES = new([SYMB_QUOTE_SINGLE, SYMB_QUOTE_DOUBLE]);
+        public static readonly HashSet<string> ESCAPABLES = new([SYMB_WHITESPACE, SYMB_ESCAPE.ToString()]);
     }
 }

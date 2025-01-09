@@ -121,9 +121,17 @@ namespace CodeCraftersShell
 
             List<string> arguments = new();
             string currentArg = "";
-            userInput = userInput.Trim();
+            int end = userInput.Length - 1;
 
             for (int i = 0; i < userInput.Length; ++i) {
+
+                if (userInput[i] == ShellConstants.SYMB_ESCAPE && i < end) {
+                    if (ShellConstants.ESCAPABLES.Contains(userInput[i + 1].ToString())) {
+                        currentArg += userInput[i + 1];
+                        ++i;
+                        continue;
+                    }
+                }
 
                 if (Char.IsWhiteSpace(userInput[i])) {
                     if (currentArg.Length > 0) {
@@ -131,7 +139,7 @@ namespace CodeCraftersShell
                         currentArg = "";
                     }
 
-                    while (Char.IsWhiteSpace(userInput[i])) {
+                    while (Char.IsWhiteSpace(userInput[i]) && i < end) {
                         ++i;
                     }
 
@@ -173,10 +181,10 @@ namespace CodeCraftersShell
                 }
 
                 currentArg += userInput[i];
+            }
 
-                if (i == userInput.Length - 1) {
-                    arguments.Add(currentArg);
-                }
+            if (currentArg.Length > 0) {
+                arguments.Add(currentArg);    
             }
 
             return arguments.ToArray();
@@ -232,6 +240,7 @@ namespace CodeCraftersShell
             return true;
         }
 
+        //TODO: implement
         static string ParseDoubleQuotes(string literal) {
 
             string parsed = "";
