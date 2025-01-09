@@ -204,10 +204,30 @@ namespace CodeCraftersShell
         static bool TryExtractDoubleQuote(string userInput, int startPosition, out string literal) {
 
             int quoteStart = startPosition;
-            int quoteEnd = quoteStart + 1;
+            int quoteEnd = quoteStart;
             literal = "";
 
-            
+            while (true) {
+                quoteEnd = userInput.IndexOf(ShellConstants.SYMB_QUOTE_DOUBLE, quoteEnd + 1);
+
+                if (quoteEnd == -1) {
+                    break;
+                }
+
+                if (userInput[quoteEnd - 1] != ShellConstants.SYMB_ESCAPE) {
+                    break;
+                }
+            }
+
+            if (quoteEnd == -1) {
+                return false;
+            }
+
+            if (quoteEnd - quoteStart < 2) {
+                return true;
+            }
+
+            literal = userInput.Substring(quoteStart + 1, quoteEnd - (quoteStart + 1));
 
             return true;
         }
