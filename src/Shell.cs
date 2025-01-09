@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace CodeCraftersShell
 {
@@ -37,7 +38,7 @@ namespace CodeCraftersShell
             Print(response);
         }
 
-        string Read() {
+        static string Read() {
 
             Console.Write($"{ShellConstants.SYMB_PROMPT} ");
             string? userInput = Console.ReadLine();
@@ -60,6 +61,7 @@ namespace CodeCraftersShell
                 case ShellConstants.CMD_PWD: return CmdPwd();
                 case ShellConstants.CMD_CD: return CmdCd(arguments);
                 case ShellConstants.CMD_CLEAR: CmdClear(); return null;
+
                 default:
                    if (CmdTryRun(arguments)) {
                         return null;
@@ -70,12 +72,12 @@ namespace CodeCraftersShell
             }
         }
 
-        void Print(string response) {
+        static void Print(string response) {
             
             Console.WriteLine(response);
         }
 
-        string? CmdEcho(string[] arguments) {
+        static string? CmdEcho(string[] arguments) {
 
             if (arguments.Length == 1) {
                 return null;
@@ -137,50 +139,84 @@ namespace CodeCraftersShell
                     continue;
                 }
 
-                if (userInput[i] != ShellConstants.SYMB_QUOTE_SINGLE) {
-                    currentArg += userInput[i];
-                    continue;
+                if (ShellConstants.SYMB_QUOTES.Contains(userInput[i])) {
+                    string literal = "";
+                    bool isExtracted = false;
+
+                    switch (userInput[i]) {
+
+                        case ShellConstants.SYMB_QUOTE_SINGLE:
+                            isExtracted = TryExtractSingleQuote(userInput, i, out literal); break;
+                        case ShellConstants.SYMB_QUOTE_DOUBLE:
+                            isExtracted = TryExtractDoubleQuote(userInput, i, out literal); break;
+                    }
+
+                    if (isExtracted && !String.IsNullOrEmpty(literal)) {
+
+                        if (currentArg.Length > 0) {
+                            arguments.Add(currentArg);    // clear argument buffer
+                        }
+
+                        if (i > 0 && userInput[i - 1] == userInput[i]) {
+                            arguments[arguments.Count - 1] = arguments[arguments.Count - 1] + literal;  //  concat with previous argument
+                        }
+                        else {
+                            arguments.Add(literal);
+                        }
+                        
+                    }
+
+                    if (isExtracted) {
+                        i += literal.Length + 1;
+                        continue;
+                    }
                 }
 
-                int openQuote = i;
-                int closeQuote = userInput.IndexOf(ShellConstants.SYMB_QUOTE_SINGLE, openQuote + 1);
+                currentArg += userInput[i];
 
-                if (closeQuote == -1) {
-                    currentArg += userInput[i];
-                    continue;
-                }
-
-                bool concatPrevious = false;
-
-                if (i > 0 && userInput[i - 1] == ShellConstants.SYMB_QUOTE_SINGLE) {
-                    concatPrevious = true;
-                }
-
-                if (currentArg.Length > 0) {
+                if (i == userInput.Length - 1) {
                     arguments.Add(currentArg);
-                    currentArg = "";
                 }
-
-                if (closeQuote - openQuote > 1) {
-                    string literal = userInput.Substring(openQuote + 1, closeQuote - (openQuote + 1));
-
-                    if (concatPrevious) {
-                        arguments[arguments.Count - 1] = arguments[arguments.Count - 1] + literal;
-                    }
-                    else {
-                        arguments.Add(literal);
-                    }
-                }
-
-                i = closeQuote;
-            }
-
-            if (currentArg.Length > 0) {
-                arguments.Add(currentArg);
             }
 
             return arguments.ToArray();
+        }
+
+        static bool TryExtractSingleQuote(string userInput, int startPosition, out string literal) {
+
+            int quoteStart = startPosition;
+            int quoteEnd = userInput.IndexOf(ShellConstants.SYMB_QUOTE_SINGLE, quoteStart + 1);
+            literal = "";
+
+            if (quoteEnd == -1) {              // no matching quote found
+                return false;
+            }
+
+            if (quoteEnd - quoteStart < 2) {  // literal is empty but quote skip required
+                return true;
+            }
+
+            literal = userInput.Substring(quoteStart + 1, quoteEnd - (quoteStart + 1));
+
+            return true;
+        }
+
+        static bool TryExtractDoubleQuote(string userInput, int startPosition, out string literal) {
+
+            int quoteStart = startPosition;
+            int quoteEnd = quoteStart + 1;
+            literal = "";
+
             
+
+            return true;
+        }
+
+        static string ParseDoubleQuotes(string literal) {
+
+            string parsed = "";
+
+            return parsed;
         }
 
         bool CmdTryRun(string[] arguments) {
@@ -206,7 +242,9 @@ namespace CodeCraftersShell
                 return true;
             }
 
-            while (!currentProcess.HasExited) {}
+            while (!currentProcess.HasExited) {
+                Thread.Sleep(ShellConstants.SLEEP_INTERVAL);
+            }
 
             return true;
         }
@@ -231,7 +269,7 @@ namespace CodeCraftersShell
             return $"{ShellConstants.CMD_CD}: {userDir}: {ShellConstants.RESP_INVALID_DIR}";
         }
 
-        void CmdClear() {
+        static void CmdClear() {
 
             Console.Clear();
         }
