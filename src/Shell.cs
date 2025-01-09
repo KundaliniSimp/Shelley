@@ -125,26 +125,21 @@ namespace CodeCraftersShell
 
             for (int i = 0; i < userInput.Length; ++i) {
 
-                if (userInput[i] == ShellConstants.SYMB_ESCAPE && i < end) {
-                    if (ShellConstants.ESCAPABLES.Contains(userInput[i + 1].ToString())) {
-                        currentArg += userInput[i + 1];
-                        ++i;
-                        continue;
+                if (userInput[i] == ShellConstants.SYMB_ESCAPE) {
+                    if (i == end || !ShellConstants.ESCAPABLES.Contains(userInput[i + 1])) {  // a non-escaping backslash
+                        goto pushChar;
                     }
+
+                    ++i;                     
+                    goto pushChar;                                               // backslash escaping an escapable char
                 }
 
                 if (Char.IsWhiteSpace(userInput[i])) {
-                    if (currentArg.Length > 0) {
+                    if (currentArg.Length > 0) {                                // argument break
                         arguments.Add(currentArg);
                         currentArg = "";
                     }
-
-                    while (Char.IsWhiteSpace(userInput[i]) && i < end) {
-                        ++i;
-                    }
-
-                    i -= 1;
-                    continue;
+                    continue;                                                 // skip whitespace
                 }
 
                 if (ShellConstants.SYMB_QUOTES.Contains(userInput[i])) {
@@ -162,7 +157,7 @@ namespace CodeCraftersShell
                     if (isExtracted && !String.IsNullOrEmpty(literal)) {
 
                         if (currentArg.Length > 0) {
-                            arguments.Add(currentArg);    // clear argument buffer
+                            arguments.Add(currentArg);                       // empty argument buffer
                         }
 
                         if (i > 0 && userInput[i - 1] == userInput[i]) {
@@ -180,6 +175,7 @@ namespace CodeCraftersShell
                     }
                 }
 
+            pushChar:
                 currentArg += userInput[i];
             }
 
@@ -200,7 +196,7 @@ namespace CodeCraftersShell
                 return false;
             }
 
-            if (quoteEnd - quoteStart < 2) {  // literal is empty but quote skip required
+            if (quoteEnd - quoteStart < 2) {  // literal is empty but quote skip is required
                 return true;
             }
 
@@ -219,16 +215,12 @@ namespace CodeCraftersShell
                 quoteEnd = userInput.IndexOf(ShellConstants.SYMB_QUOTE_DOUBLE, quoteEnd + 1);
 
                 if (quoteEnd == -1) {
-                    break;
+                    return false;
                 }
 
                 if (userInput[quoteEnd - 1] != ShellConstants.SYMB_ESCAPE) {
                     break;
                 }
-            }
-
-            if (quoteEnd == -1) {
-                return false;
             }
 
             if (quoteEnd - quoteStart < 2) {

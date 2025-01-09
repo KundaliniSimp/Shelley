@@ -48,6 +48,9 @@ namespace CodeCraftersShell
                     Environment.CurrentDirectory = userHomeDir;
                     return true;
                 }
+                else {
+                    return false;
+                }
             }
 
             if (Directory.Exists(userDir)) {
