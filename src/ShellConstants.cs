@@ -33,6 +33,6 @@
         public static readonly HashSet<char> ESCAPABLES = new(
             [SYMB_WHITESPACE, SYMB_ESCAPE, SYMB_QUOTE_SINGLE, SYMB_QUOTE_DOUBLE, SYMB_NEWLINE]
         );
-        public static readonly HashSet<char> DOUBLE_QUOTE_ESCAPABLES = new([SYMB_ESCAPE, SYMB_DOLLAR, SYMB_QUOTE_DOUBLE, SYMB_NEWLINE]);
+        public static readonly HashSet<char> DOUBLE_QUOTE_ESCAPABLES = new([SYMB_ESCAPE, SYMB_DOLLAR, SYMB_QUOTE_DOUBLE]);
     }
 }
