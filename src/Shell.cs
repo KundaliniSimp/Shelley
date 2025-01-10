@@ -207,6 +207,10 @@ namespace CodeCraftersShell
                 if (userInput[quoteEnd - 1] != ShellConstants.SYMB_ESCAPE) {
                     break;
                 }
+
+                if (userInput[quoteEnd - 1] == ShellConstants.SYMB_ESCAPE && userInput[quoteEnd - 2] == ShellConstants.SYMB_ESCAPE) {
+                    break;
+                }
             }
 
             if (quoteEnd - quoteStart < 2) {
