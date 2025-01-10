@@ -7,6 +7,7 @@
         public const char SYMB_QUOTE_SINGLE = '\'';
         public const char SYMB_QUOTE_DOUBLE = '"';
         public const char SYMB_ESCAPE = '\\';
+        public const char SYMB_DOLLAR = '$';
         public const char SYMB_WHITESPACE = (char)32;
         public const char SYMB_NEWLINE = 'n';
         public const string APP_TITLE = "LiteShell";
@@ -32,5 +33,6 @@
         public static readonly HashSet<char> ESCAPABLES = new(
             [SYMB_WHITESPACE, SYMB_ESCAPE, SYMB_QUOTE_SINGLE, SYMB_QUOTE_DOUBLE, SYMB_NEWLINE]
         );
+        public static readonly HashSet<char> DOUBLE_QUOTE_ESCAPABLES = new([SYMB_ESCAPE, SYMB_DOLLAR, SYMB_QUOTE_DOUBLE, SYMB_NEWLINE]);
     }
 }

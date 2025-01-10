@@ -131,7 +131,7 @@ namespace CodeCraftersShell
                     }
 
                     ++i;                     
-                    goto pushChar;                                               // backslash escaping an escapable char
+                    goto pushChar;                                               // backslash precedes an escapable char
                 }
 
                 if (Char.IsWhiteSpace(userInput[i])) {
@@ -144,33 +144,19 @@ namespace CodeCraftersShell
 
                 if (ShellConstants.SYMB_QUOTES.Contains(userInput[i])) {
                     string literal = "";
-                    bool isExtracted = false;
+                    int jumpPosition = 0;
 
                     switch (userInput[i]) {
-
                         case ShellConstants.SYMB_QUOTE_SINGLE:
-                            isExtracted = TryExtractSingleQuote(userInput, i, out literal); break;
+                            jumpPosition = TryExtractSingleQuote(userInput, i, out literal); break;
                         case ShellConstants.SYMB_QUOTE_DOUBLE:
-                            isExtracted = TryExtractDoubleQuote(userInput, i, out literal); break;
+                            jumpPosition = TryExtractDoubleQuote(userInput, i, out literal); break;
                     }
+                    
+                    currentArg += literal;
 
-                    if (isExtracted && !String.IsNullOrEmpty(literal)) {
-
-                        if (currentArg.Length > 0) {
-                            arguments.Add(currentArg);                       // empty argument buffer
-                        }
-
-                        if (i > 0 && userInput[i - 1] == userInput[i]) {
-                            arguments[arguments.Count - 1] = arguments[arguments.Count - 1] + literal;  //  concat with previous argument
-                        }
-                        else {
-                            arguments.Add(literal);
-                        }
-                        
-                    }
-
-                    if (isExtracted) {
-                        i += literal.Length + 1;
+                    if (jumpPosition >= 0) {
+                        i = jumpPosition;
                         continue;
                     }
                 }
@@ -179,33 +165,33 @@ namespace CodeCraftersShell
                 currentArg += userInput[i];
             }
 
-            if (currentArg.Length > 0) {
+            if (currentArg.Length > 0) {         // clear argument buffer
                 arguments.Add(currentArg);    
             }
 
             return arguments.ToArray();
         }
 
-        static bool TryExtractSingleQuote(string userInput, int startPosition, out string literal) {
+        static int TryExtractSingleQuote(string userInput, int startPosition, out string literal) {
 
             int quoteStart = startPosition;
             int quoteEnd = userInput.IndexOf(ShellConstants.SYMB_QUOTE_SINGLE, quoteStart + 1);
             literal = "";
 
             if (quoteEnd == -1) {              // no matching quote found
-                return false;
+                return -1;
             }
 
             if (quoteEnd - quoteStart < 2) {  // literal is empty but quote skip is required
-                return true;
+                return quoteEnd;
             }
 
             literal = userInput.Substring(quoteStart + 1, quoteEnd - (quoteStart + 1));
 
-            return true;
+            return quoteEnd;
         }
 
-        static bool TryExtractDoubleQuote(string userInput, int startPosition, out string literal) {
+        static int TryExtractDoubleQuote(string userInput, int startPosition, out string literal) {
 
             int quoteStart = startPosition;
             int quoteEnd = quoteStart;
@@ -215,7 +201,7 @@ namespace CodeCraftersShell
                 quoteEnd = userInput.IndexOf(ShellConstants.SYMB_QUOTE_DOUBLE, quoteEnd + 1);
 
                 if (quoteEnd == -1) {
-                    return false;
+                    return -1;
                 }
 
                 if (userInput[quoteEnd - 1] != ShellConstants.SYMB_ESCAPE) {
@@ -224,20 +210,30 @@ namespace CodeCraftersShell
             }
 
             if (quoteEnd - quoteStart < 2) {
-                return true;
+                return quoteEnd;
             }
 
             literal = userInput.Substring(quoteStart + 1, quoteEnd - (quoteStart + 1));
+            literal = ParseDoubleQuotes(literal);
 
-            return true;
+            return quoteEnd;
         }
 
-        //TODO: implement
         static string ParseDoubleQuotes(string literal) {
 
-            string parsed = "";
+            string parsedLiteral = "";
+            int end = literal.Length - 1;
 
-            return parsed;
+            for (int i = 0; i < literal.Length; ++i) {
+                if (literal[i] == ShellConstants.SYMB_ESCAPE && i < end) {
+                    if (ShellConstants.DOUBLE_QUOTE_ESCAPABLES.Contains(literal[i + 1])) {
+                        ++i;
+                    }
+                }
+                parsedLiteral += literal[i];
+            }
+
+            return parsedLiteral;
         }
 
         bool CmdTryRun(string[] arguments) {
