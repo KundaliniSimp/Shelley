@@ -66,7 +66,7 @@ namespace CodeCraftersShell
                 case ShellConstants.CMD_CLEAR: CmdClear(); break;
 
                 default:
-                   string? runOutput = CmdTryRun(arguments);
+                   string? runOutput = CmdTryRun(arguments, response.RedirectionType);
                     
                    if (runOutput != null) {
                         response.Message = runOutput;
@@ -89,7 +89,7 @@ namespace CodeCraftersShell
             int end = arguments.Length - 1;
 
             for (int i = 0; i < arguments.Length; ++i) {
-                if (arguments[i][arguments[i].Length - 1] == ShellConstants.SYMB_REDIRECT) {
+                if (arguments[i][arguments[i].Length - 1] == ShellConstants.FLAG_REDIRECT_DEFAULT[0]) {
                     redirectFlag = arguments[i];
                     redirectFlagIndex = i;
 
@@ -107,16 +107,27 @@ namespace CodeCraftersShell
 
             response.RedirectDirectory = redirectDirectory;
 
-            switch (redirectFlag[0]) {
-                case ShellConstants.SYMB_REDIRECT:
-                case ShellConstants.SYMB_REDIRECT_OUTPUT:
-                    response.RedirectionType = RedirectionType.STD_OUTPUT; break;
-                case ShellConstants.SYMB_REDIRECT_ERROR:
-                    response.RedirectionType = RedirectionType.STD_ERROR; break;
+            switch (redirectFlag) {
+                case ShellConstants.FLAG_REDIRECT_DEFAULT:
+                case ShellConstants.FLAG_REDIRECT_OUTPUT_NEW:
+                    response.RedirectionType = RedirectionType.STD_OUTPUT;
+                    response.RedirectionPrintMode = RedirectionPrintMode.NEW;
+                    break;
+                case ShellConstants.FLAG_REDIRECT_OUTPUT_APPEND:
+                    response.RedirectionType = RedirectionType.STD_OUTPUT;
+                    response.RedirectionPrintMode = RedirectionPrintMode.APPEND;
+                    break;
+                case ShellConstants.FLAG_REDIRECT_ERROR_NEW:
+                    response.RedirectionType = RedirectionType.STD_ERROR;
+                    response.RedirectionPrintMode = RedirectionPrintMode.NEW;
+                    break;
+                case ShellConstants.FLAG_REDIRECT_ERROR_APPEND:
+                    response.RedirectionType = RedirectionType.STD_ERROR;
+                    response.RedirectionPrintMode = RedirectionPrintMode.APPEND;
+                    break;
             }
 
         exit:
-
             if (redirectFlagIndex > -1) {
                 Array.Resize(ref arguments, redirectFlagIndex);             // truncate redirection data from arguments
             }
@@ -131,7 +142,12 @@ namespace CodeCraftersShell
             }
 
             if (response.RedirectionType != RedirectionType.NO_REDIRECT) {
-                File.WriteAllText(response.RedirectDirectory, response.Message);
+                if (response.RedirectionPrintMode == RedirectionPrintMode.NEW) {
+                    File.WriteAllText(response.RedirectDirectory, response.Message);
+                }
+                else if (response.RedirectionPrintMode == RedirectionPrintMode.APPEND) {
+                    File.AppendAllText(response.RedirectDirectory, response.Message);
+                }
             }
             else {
                 Console.WriteLine(response.Message);
@@ -312,7 +328,7 @@ namespace CodeCraftersShell
             return parsedLiteral;
         }
 
-        string? CmdTryRun(string[] arguments) {
+        string? CmdTryRun(string[] arguments, RedirectionType redirectionType) {
 
             string command = arguments[0];
             string? executablePath = pathManager.GetExecutablePath(command);
@@ -323,7 +339,13 @@ namespace CodeCraftersShell
             }
 
             ProcessStartInfo processConfig = new(command);
-            processConfig.RedirectStandardOutput = true;
+
+            if (redirectionType == RedirectionType.STD_OUTPUT) {
+                processConfig.RedirectStandardOutput = true;
+            }
+            else if (redirectionType == RedirectionType.STD_ERROR) {
+                processConfig.RedirectStandardError = true;
+            }
 
             if (arguments.Length > 1) {
                 for (int i = 1; i < arguments.Length; ++i) {
@@ -337,7 +359,14 @@ namespace CodeCraftersShell
                 return null;
             }
 
-            processOutput += currentProcess.StandardOutput.ReadToEnd().TrimEnd();
+            if (redirectionType == RedirectionType.STD_OUTPUT) {
+                processOutput += currentProcess.StandardOutput.ReadToEnd();
+            }
+            else if (redirectionType == RedirectionType.STD_ERROR) {
+                processOutput += currentProcess.StandardError.ReadToEnd();
+            }
+
+            processOutput = processOutput.TrimEnd();
 
             while (!currentProcess.HasExited) {
 

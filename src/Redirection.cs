@@ -11,4 +11,10 @@ namespace CodeCraftersShell
         STD_OUTPUT,
         STD_ERROR,
     }
+
+    enum RedirectionPrintMode {
+        NEW,
+        APPEND,
+        NULL,
+    }
 }

@@ -11,11 +11,13 @@ namespace CodeCraftersShell
         public string Message { get; set; }
         public string RedirectDirectory { get; set; }
         public RedirectionType RedirectionType { get; set; }
+        public RedirectionPrintMode RedirectionPrintMode { get; set; }
 
         public CommandResponse() {
             Message = "";
             RedirectDirectory = "";
             RedirectionType = RedirectionType.NO_REDIRECT;
+            RedirectionPrintMode = RedirectionPrintMode.NULL;
         }
     } 
 }
