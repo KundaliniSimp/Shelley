@@ -338,7 +338,7 @@ namespace CodeCraftersShell
                 return null;
             }
 
-            processOutput += currentProcess.StandardOutput.ReadToEnd().TrimEnd();
+            processOutput += currentProcess.StandardOutput.ReadToEnd();//.TrimEnd();
 
             while (!currentProcess.HasExited) {
 
