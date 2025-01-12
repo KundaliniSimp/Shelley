@@ -135,9 +135,8 @@ namespace CodeCraftersShell
             }
             else { 
                 Console.WriteLine(response.Message);
+                Console.WriteLine("Response printed. Returning to read command...");
             }
-
-            Console.WriteLine("Response printed. Returning to read command...");
         }
 
         static string CmdEcho(string[] arguments) {
