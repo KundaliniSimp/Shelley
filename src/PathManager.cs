@@ -13,7 +13,7 @@ namespace CodeCraftersShell
             string? envPath = Environment.GetEnvironmentVariable(ShellConstants.ENV_VAR_PATH);
 
             if (envPath != null) {
-                directories = envPath.Split(ShellConstants.ENV_VAR_PATH_SEPARATOR);
+                directories = envPath.Split(ShellConstants.ENV_PATH_SEPARATOR);
             }
 
             userHomeDir = Environment.GetEnvironmentVariable(ShellConstants.ENV_VAR_HOME);
@@ -26,7 +26,7 @@ namespace CodeCraftersShell
             }
 
             foreach (string dir in directories) {
-                string fullPath = $"{dir}{ShellConstants.ENV_DIR_SEPARATOR}{exeName}.exe";
+                string fullPath = $"{dir}{ShellConstants.ENV_DIR_SEPARATOR}{exeName}{ShellConstants.ENV_EXECUTABLE_EXT}";
 
                 if (File.Exists(fullPath)) {
                     return fullPath;

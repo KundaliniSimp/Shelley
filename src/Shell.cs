@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace CodeCraftersShell
 {
     class Shell
     {
-
         bool isRunning;
         PathManager pathManager;
 
@@ -338,7 +338,7 @@ namespace CodeCraftersShell
                 return null;
             }
 
-            processOutput += currentProcess.StandardOutput.ReadToEnd();//.TrimEnd();
+            processOutput += currentProcess.StandardOutput.ReadToEnd().TrimEnd();
 
             while (!currentProcess.HasExited) {
 
@@ -371,6 +371,16 @@ namespace CodeCraftersShell
         static void CmdClear() {
 
             Console.Clear();
+        }
+
+        public static bool IsEnvironmentWindows() {
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
+                return true;
+            }
+            else {
+                return false;
+            }
         }
     }
 }
