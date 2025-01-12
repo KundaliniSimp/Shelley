@@ -22,7 +22,7 @@ namespace CodeCraftersShell
         public string? GetExecutablePath(string exeName) {
 
             if (directories == null) {
-                goto exit;
+                return null;
             }
 
             foreach (string dir in directories) {
@@ -33,7 +33,6 @@ namespace CodeCraftersShell
                 }
             }
 
-        exit:
             return null;
         }
 

@@ -10,6 +10,9 @@
         public const char SYMB_DOLLAR = '$';
         public const char SYMB_WHITESPACE = (char)32;
         public const char SYMB_NEWLINE = 'n';
+        public const char SYMB_REDIRECT = '>';
+        public const char SYMB_REDIRECT_OUTPUT = '1';
+        public const char SYMB_REDIRECT_ERROR = '2';
         public const string APP_TITLE = "LiteShell";
         public const string CMD_ECHO = "echo";
         public const string CMD_EXIT = "exit";
@@ -26,7 +29,7 @@
         public const string ENV_VAR_PATH_SEPARATOR = ":";
         public const string ENV_VAR_HOME = "HOME";
         public const string ENV_DIR_SEPARATOR = "/";
-        public const int SLEEP_INTERVAL = 100;
+        public const int SLEEP_INTERVAL = 10;
 
         public static readonly HashSet<string> BUILTINS = new([CMD_ECHO, CMD_EXIT, CMD_TYPE, CMD_PWD, CMD_CD, CMD_CLEAR]);
         public static readonly HashSet<char> SYMB_QUOTES = new([SYMB_QUOTE_SINGLE, SYMB_QUOTE_DOUBLE]);
