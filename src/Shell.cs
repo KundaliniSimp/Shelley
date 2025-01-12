@@ -135,8 +135,6 @@ namespace CodeCraftersShell
             }
             else {
                 Console.WriteLine(response.Message);
-                Console.WriteLine("Control awaiting here.");
-                Console.WriteLine("Response printed. Returning to read command...");
             }
         }
 
@@ -340,7 +338,7 @@ namespace CodeCraftersShell
                 return null;
             }
 
-            processOutput += currentProcess.StandardOutput.ReadToEnd();
+            processOutput += currentProcess.StandardOutput.ReadToEnd().TrimEnd();
 
             while (!currentProcess.HasExited) {
 

@@ -26,9 +26,9 @@
         public const string RESP_VALID_PATH = "is";
         public const string RESP_INVALID_DIR = "No such file or directory";
         public const string ENV_VAR_PATH = "PATH";
-        public const string ENV_VAR_PATH_SEPARATOR = ":";
+        public const string ENV_VAR_PATH_SEPARATOR = ";";
         public const string ENV_VAR_HOME = "HOME";
-        public const string ENV_DIR_SEPARATOR = "/";
+        public const string ENV_DIR_SEPARATOR = "\\";
         public const int SLEEP_INTERVAL = 10;
 
         public static readonly HashSet<string> BUILTINS = new([CMD_ECHO, CMD_EXIT, CMD_TYPE, CMD_PWD, CMD_CD, CMD_CLEAR]);
