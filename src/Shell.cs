@@ -338,9 +338,9 @@ namespace CodeCraftersShell
                 return null;
             }
 
-            processOutput = currentProcess.StandardOutput.ReadToEnd();
-
-            Console.WriteLine("CmdTryRun: Received process output: " + processOutput);
+            while (currentProcess.StandardOutput.Peek() > -1) {
+                processOutput += currentProcess.StandardOutput.ReadLine();
+            }
 
             while (String.IsNullOrEmpty(processOutput) && !currentProcess.HasExited) {
 
