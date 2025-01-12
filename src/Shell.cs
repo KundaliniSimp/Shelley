@@ -340,7 +340,8 @@ namespace CodeCraftersShell
 
             processOutput = currentProcess.StandardOutput.ReadToEnd();
 
-            while (!currentProcess.HasExited) {
+            while (String.IsNullOrEmpty(processOutput) && !currentProcess.HasExited) {
+
                 Thread.Sleep(ShellConstants.SLEEP_INTERVAL);
             }
 
