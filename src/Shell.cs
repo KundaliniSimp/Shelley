@@ -133,8 +133,10 @@ namespace CodeCraftersShell
             if (response.RedirectionType != RedirectionType.NO_REDIRECT) {
                 File.WriteAllText(response.RedirectDirectory, response.Message);
             }
-            else { 
+            else {
+                Console.WriteLine("Printing response...");
                 Console.WriteLine(response.Message);
+                Console.WriteLine("Control awaiting here.");
                 Console.WriteLine("Response printed. Returning to read command...");
             }
         }
@@ -339,12 +341,9 @@ namespace CodeCraftersShell
                 return null;
             }
 
-            while (currentProcess.StandardOutput.Peek() > -1) {
-                processOutput += currentProcess.StandardOutput.ReadLine();
-                processOutput += "\n";
-            }
+            processOutput += currentProcess.StandardOutput.ReadToEnd();
 
-            while (String.IsNullOrEmpty(processOutput) && !currentProcess.HasExited) {
+            while (!currentProcess.HasExited) {
 
                 Thread.Sleep(ShellConstants.SLEEP_INTERVAL);
             }
