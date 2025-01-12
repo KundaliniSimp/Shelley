@@ -360,13 +360,11 @@ namespace CodeCraftersShell
             }
 
             if (redirectionType == RedirectionType.STD_OUTPUT) {
-                processOutput += currentProcess.StandardOutput.ReadToEnd();
+                processOutput += currentProcess.StandardOutput.ReadToEnd().TrimEnd();
             }
             else if (redirectionType == RedirectionType.STD_ERROR) {
                 processOutput += currentProcess.StandardError.ReadToEnd();
             }
-
-            processOutput = processOutput.TrimEnd();
 
             while (!currentProcess.HasExited) {
 
