@@ -340,6 +340,8 @@ namespace CodeCraftersShell
 
             processOutput = currentProcess.StandardOutput.ReadToEnd();
 
+            Console.WriteLine("CmdTryRun: Received process output: " + processOutput);
+
             while (String.IsNullOrEmpty(processOutput) && !currentProcess.HasExited) {
 
                 Thread.Sleep(ShellConstants.SLEEP_INTERVAL);
