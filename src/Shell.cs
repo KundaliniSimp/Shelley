@@ -134,7 +134,6 @@ namespace CodeCraftersShell
                 File.WriteAllText(response.RedirectDirectory, response.Message);
             }
             else {
-                Console.WriteLine("Printing response...");
                 Console.WriteLine(response.Message);
                 Console.WriteLine("Control awaiting here.");
                 Console.WriteLine("Response printed. Returning to read command...");
