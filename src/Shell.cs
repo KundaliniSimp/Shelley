@@ -340,6 +340,7 @@ namespace CodeCraftersShell
 
             while (currentProcess.StandardOutput.Peek() > -1) {
                 processOutput += currentProcess.StandardOutput.ReadLine();
+                processOutput += "\n";
             }
 
             while (String.IsNullOrEmpty(processOutput) && !currentProcess.HasExited) {
