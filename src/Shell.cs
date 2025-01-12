@@ -47,10 +47,15 @@ namespace CodeCraftersShell
         CommandResponse Eval(string userInput) {
 
             string[] arguments = ParseInput(userInput);
+
+            if (arguments.Length < 1) {
+                return new CommandResponse();
+            }
+
             string command = arguments[0];
             CommandResponse response = new();
 
-            response  = GetRedirectionData(arguments, response);
+            response = GetRedirectionData(ref arguments, response);
 
             switch (command) {
                 case ShellConstants.CMD_ECHO: response.Message = CmdEcho(arguments); break;
@@ -76,26 +81,33 @@ namespace CodeCraftersShell
             return response;
         }
 
-        CommandResponse GetRedirectionData(string[] arguments, CommandResponse response) {
+        CommandResponse GetRedirectionData(ref string[] arguments, CommandResponse response) {
 
-            string redirectCode = "";
+            string redirectFlag = "";
+            string redirectDirectory = "";
             int redirectFlagIndex = -1;
             int end = arguments.Length - 1;
 
             for (int i = 0; i < arguments.Length; ++i) {
                 if (arguments[i][arguments[i].Length - 1] == ShellConstants.SYMB_REDIRECT) {
-                    redirectCode = arguments[i];
+                    redirectFlag = arguments[i];
                     redirectFlagIndex = i;
 
                     if (i < end) {
-                        response.RedirectDirectory = arguments[i + 1];
+                        redirectDirectory = arguments[i + 1];
                     }
 
                     break;
                 }
             }
 
-            switch (redirectCode[0]) {
+            if (String.IsNullOrEmpty(redirectFlag) || String.IsNullOrEmpty(redirectDirectory)) {      // complete redirection data not found
+                goto exit;
+            }
+
+            response.RedirectDirectory = redirectDirectory;
+
+            switch (redirectFlag[0]) {
                 case ShellConstants.SYMB_REDIRECT:
                 case ShellConstants.SYMB_REDIRECT_OUTPUT:
                     response.RedirectionType = RedirectionType.STD_OUTPUT; break;
@@ -103,7 +115,11 @@ namespace CodeCraftersShell
                     response.RedirectionType = RedirectionType.STD_ERROR; break;
             }
 
-            Array.Resize(ref arguments, redirectFlagIndex);                 // truncate redirection data from arguments
+        exit:
+
+            if (redirectFlagIndex > -1) {
+                Array.Resize(ref arguments, redirectFlagIndex);             // truncate redirection data from arguments
+            }
 
             return response;
         }
