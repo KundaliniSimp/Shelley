@@ -258,31 +258,30 @@ namespace CodeCraftersShell
             int quoteEnd = quoteStart;
             literal = "";
 
-            while (true) {
+            while (quoteEnd != -1) {
                 quoteEnd = userInput.IndexOf(ShellConstants.SYMB_QUOTE_DOUBLE, quoteEnd + 1);
 
                 if (quoteEnd == -1) {
-                    return -1;
+                    return quoteEnd;
                 }
 
                 if (userInput[quoteEnd - 1] != ShellConstants.SYMB_ESCAPE) {
                     break;
                 }
+
+                int i = quoteEnd - 1;
+                int escapeCount = 0;
+
+                while (userInput[i] == ShellConstants.SYMB_ESCAPE) {
+                    ++escapeCount;
+                    --i;
+                }
+
+                if (escapeCount % 2 == 0) {
+                    break;
+                }
                 else {
-                    int i = quoteEnd - 1;
-                    int escapeCount = 0;
-
-                    while (userInput[i] == ShellConstants.SYMB_ESCAPE) {
-                        ++escapeCount;
-                        --i;
-                    }
-
-                    if (escapeCount % 2 == 0) {
-                        break;
-                    }
-                    else {
-                        return -1;
-                    }
+                    continue;
                 }
             }
 
