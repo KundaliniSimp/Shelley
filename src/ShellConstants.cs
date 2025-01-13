@@ -10,8 +10,9 @@
         public const char SYMB_DOLLAR = '$';
         public const char SYMB_WHITESPACE = (char)32;
         public const char SYMB_NEWLINE = 'n';
-        public const string FLAG_REDIRECT_DEFAULT = ">";
+        public const string FLAG_REDIRECT_OUTPUT_DEFAULT = ">";
         public const string FLAG_REDIRECT_OUTPUT_NEW = "1>";
+        public const string FLAG_REDIRECT_OUTPUT_APPEND_DEFAULT = ">>";
         public const string FLAG_REDIRECT_OUTPUT_APPEND = "1>>";
         public const string FLAG_REDIRECT_ERROR_NEW = "2>";
         public const string FLAG_REDIRECT_ERROR_APPEND = "2>>";

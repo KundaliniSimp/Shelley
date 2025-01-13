@@ -86,7 +86,7 @@ namespace CodeCraftersShell
             int end = arguments.Length - 1;
 
             for (int i = 0; i < arguments.Length; ++i) {
-                if (arguments[i][arguments[i].Length - 1] == ShellConstants.FLAG_REDIRECT_DEFAULT[0]) {
+                if (arguments[i][arguments[i].Length - 1] == ShellConstants.FLAG_REDIRECT_OUTPUT_DEFAULT[0]) {
                     redirectFlag = arguments[i];
                     redirectFlagIndex = i;
 
@@ -105,11 +105,12 @@ namespace CodeCraftersShell
             response.RedirectDirectory = redirectDirectory;
 
             switch (redirectFlag) {
-                case ShellConstants.FLAG_REDIRECT_DEFAULT:
+                case ShellConstants.FLAG_REDIRECT_OUTPUT_DEFAULT:
                 case ShellConstants.FLAG_REDIRECT_OUTPUT_NEW:
                     response.RedirectionType = RedirectionType.STD_OUTPUT;
                     response.RedirectionPrintMode = RedirectionPrintMode.NEW;
                     break;
+                case ShellConstants.FLAG_REDIRECT_OUTPUT_APPEND_DEFAULT:
                 case ShellConstants.FLAG_REDIRECT_OUTPUT_APPEND:
                     response.RedirectionType = RedirectionType.STD_OUTPUT;
                     response.RedirectionPrintMode = RedirectionPrintMode.APPEND;
