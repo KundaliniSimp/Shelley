@@ -365,6 +365,8 @@ namespace CodeCraftersShell
             response.OutputMessage = currentProcess.StandardOutput.ReadToEnd().TrimEnd();
             response.ErrorMessage = currentProcess.StandardOutput.ReadToEnd().TrimEnd();
 
+            Console.WriteLine("Error message: " + response.ErrorMessage);
+
             while (!currentProcess.HasExited) {
 
                 Thread.Sleep(ShellConstants.SLEEP_INTERVAL);
