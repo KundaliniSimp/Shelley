@@ -142,10 +142,6 @@ namespace CodeCraftersShell
 
         static void ProcessPrintAction(string message, bool isRedirected, string redirectionDirectory = "", RedirectionPrintMode printMode = RedirectionPrintMode.NULL) {
 
-            if (String.IsNullOrEmpty(message)) {
-                return;
-            }
-
             if (!isRedirected) {
                 Console.WriteLine(message);
                 return;
