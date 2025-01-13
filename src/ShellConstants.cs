@@ -9,7 +9,8 @@
         public const char SYMB_ESCAPE = '\\';
         public const char SYMB_DOLLAR = '$';
         public const char SYMB_WHITESPACE = (char)32;
-        public const char SYMB_NEWLINE = 'n';
+        public const char SYMB_NEWLINE_RAW = 'n';
+        public const char SYMB_NEWLINE = '\n';
         public const string FLAG_REDIRECT_OUTPUT_DEFAULT = ">";
         public const string FLAG_REDIRECT_OUTPUT_NEW = "1>";
         public const string FLAG_REDIRECT_OUTPUT_APPEND_DEFAULT = ">>";
@@ -40,7 +41,7 @@
         public static readonly HashSet<string> BUILTINS = new([CMD_ECHO, CMD_EXIT, CMD_TYPE, CMD_PWD, CMD_CD, CMD_CLEAR]);
         public static readonly HashSet<char> SYMB_QUOTES = new([SYMB_QUOTE_SINGLE, SYMB_QUOTE_DOUBLE]);
         public static readonly HashSet<char> ESCAPABLES = new(
-            [SYMB_WHITESPACE, SYMB_ESCAPE, SYMB_QUOTE_SINGLE, SYMB_QUOTE_DOUBLE, SYMB_NEWLINE]
+            [SYMB_WHITESPACE, SYMB_ESCAPE, SYMB_QUOTE_SINGLE, SYMB_QUOTE_DOUBLE, SYMB_NEWLINE_RAW]
         );
         public static readonly HashSet<char> DOUBLE_QUOTE_ESCAPABLES = new([SYMB_ESCAPE, SYMB_DOLLAR, SYMB_QUOTE_DOUBLE]);
     }
