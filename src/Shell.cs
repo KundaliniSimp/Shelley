@@ -347,6 +347,8 @@ namespace CodeCraftersShell
             }
 
             ProcessStartInfo processConfig = new(command);
+            processConfig.RedirectStandardOutput = true;
+            processConfig.RedirectStandardError = true;
 
             if (arguments.Length > 1) {
                 for (int i = 1; i < arguments.Length; ++i) {
