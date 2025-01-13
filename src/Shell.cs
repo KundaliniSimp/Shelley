@@ -148,6 +148,7 @@ namespace CodeCraftersShell
 
             if (!isRedirected) {
                 Console.WriteLine(message);
+                return;
             }
 
             if (String.IsNullOrEmpty(redirectionDirectory)) {
