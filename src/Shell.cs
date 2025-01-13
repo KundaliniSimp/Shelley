@@ -162,7 +162,13 @@ namespace CodeCraftersShell
                     File.AppendAllText(redirectionDirectory, message);
                 }
                 else {
-                    File.AppendAllText(redirectionDirectory, ShellConstants.SYMB_NEWLINE + message);
+
+                    int hasCharacters;
+                    using (StreamReader reader = new(redirectionDirectory)) {
+                        hasCharacters = reader.Peek();
+                    }
+
+                    File.AppendAllText(redirectionDirectory, $"{(hasCharacters > -1 ? ShellConstants.SYMB_NEWLINE : "")}{message}");
                 }
             }
 
