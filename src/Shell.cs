@@ -58,21 +58,18 @@ namespace CodeCraftersShell
             response = GetRedirectionData(ref arguments, response);
 
             switch (command) {
-                case ShellConstants.CMD_ECHO: response.Message = CmdEcho(arguments); break;
+                case ShellConstants.CMD_ECHO: response.OutputMessage = CmdEcho(arguments); break;
                 case ShellConstants.CMD_EXIT: isRunning = false; break;
-                case ShellConstants.CMD_TYPE: response.Message = CmdType(arguments); break;
-                case ShellConstants.CMD_PWD: response.Message = CmdPwd(); break;
-                case ShellConstants.CMD_CD: response.Message = CmdCd(arguments); break;
+                case ShellConstants.CMD_TYPE: response.OutputMessage = CmdType(arguments); break;
+                case ShellConstants.CMD_PWD: response.OutputMessage = CmdPwd(); break;
+                case ShellConstants.CMD_CD: response.OutputMessage = CmdCd(arguments); break;
                 case ShellConstants.CMD_CLEAR: CmdClear(); break;
 
                 default:
-                   string? runOutput = CmdTryRun(arguments, response.RedirectionType);
+                   bool runOutcome = CmdTryRun(arguments, response);
                     
-                   if (runOutput != null) {
-                        response.Message = runOutput;
-                   }
-                   else { 
-                        response.Message = $"{command}: {ShellConstants.RESP_INVALID_CMD}";
+                   if (!runOutcome) {
+                        response.OutputMessage = $"{command}: {ShellConstants.RESP_INVALID_CMD}";
                    }
 
                    break;
@@ -137,21 +134,33 @@ namespace CodeCraftersShell
 
         static void Print(CommandResponse response) {
 
-            if (String.IsNullOrEmpty(response.Message)) {
+            ProcessPrintAction(
+                response.OutputMessage, response.RedirectionType == RedirectionType.STD_OUTPUT, response.RedirectDirectory, response.RedirectionPrintMode
+            );
+            ProcessPrintAction(response.ErrorMessage, response.RedirectionType == RedirectionType.STD_ERROR, response.RedirectDirectory, response.RedirectionPrintMode);
+        }
+
+        static void ProcessPrintAction(string message, bool isRedirected, string redirectionDirectory = "", RedirectionPrintMode printMode = RedirectionPrintMode.NULL) {
+
+            if (String.IsNullOrEmpty(message)) {
                 return;
             }
 
-            if (response.RedirectionType != RedirectionType.NO_REDIRECT) {
-                if (response.RedirectionPrintMode == RedirectionPrintMode.NEW) {
-                    File.WriteAllText(response.RedirectDirectory, response.Message);
-                }
-                else if (response.RedirectionPrintMode == RedirectionPrintMode.APPEND) {
-                    File.AppendAllText(response.RedirectDirectory, response.Message);
-                }
+            if (!isRedirected) {
+                Console.WriteLine(message);
             }
-            else {
-                Console.WriteLine(response.Message);
+
+            if (String.IsNullOrEmpty(redirectionDirectory)) {
+                return;
             }
+
+            if (printMode == RedirectionPrintMode.NEW) {
+                File.WriteAllText(redirectionDirectory, message);
+            }
+            else if (printMode == RedirectionPrintMode.APPEND) {
+                File.AppendAllText(redirectionDirectory, message);
+            }
+
         }
 
         static string CmdEcho(string[] arguments) {
@@ -328,24 +337,16 @@ namespace CodeCraftersShell
             return parsedLiteral;
         }
 
-        string? CmdTryRun(string[] arguments, RedirectionType redirectionType) {
+        bool CmdTryRun(string[] arguments, CommandResponse response) {
 
             string command = arguments[0];
             string? executablePath = pathManager.GetExecutablePath(command);
-            string processOutput = "";
 
             if (executablePath == null) {
-                return null;
+                return false;
             }
 
             ProcessStartInfo processConfig = new(command);
-
-            if (redirectionType == RedirectionType.STD_OUTPUT) {
-                processConfig.RedirectStandardOutput = true;
-            }
-            else if (redirectionType == RedirectionType.STD_ERROR) {
-                processConfig.RedirectStandardError = true;
-            }
 
             if (arguments.Length > 1) {
                 for (int i = 1; i < arguments.Length; ++i) {
@@ -356,22 +357,18 @@ namespace CodeCraftersShell
             Process? currentProcess = Process.Start(processConfig);
 
             if (currentProcess == null) {
-                return null;
+                return false;
             }
 
-            if (redirectionType == RedirectionType.STD_OUTPUT) {
-                processOutput += currentProcess.StandardOutput.ReadToEnd().TrimEnd();
-            }
-            else if (redirectionType == RedirectionType.STD_ERROR) {
-                processOutput += currentProcess.StandardError.ReadToEnd();
-            }
+            response.OutputMessage = currentProcess.StandardOutput.ReadToEnd().TrimEnd();
+            response.ErrorMessage = currentProcess.StandardOutput.ReadToEnd().TrimEnd();
 
             while (!currentProcess.HasExited) {
 
                 Thread.Sleep(ShellConstants.SLEEP_INTERVAL);
             }
 
-            return processOutput;
+            return true;
         }
         
         string CmdPwd() {

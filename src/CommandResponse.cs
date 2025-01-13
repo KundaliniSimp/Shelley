@@ -8,13 +8,15 @@ namespace CodeCraftersShell
 {
     class CommandResponse {
 
-        public string Message { get; set; }
+        public string OutputMessage { get; set; }
+        public string ErrorMessage { get; set; }
         public string RedirectDirectory { get; set; }
         public RedirectionType RedirectionType { get; set; }
         public RedirectionPrintMode RedirectionPrintMode { get; set; }
 
         public CommandResponse() {
-            Message = "";
+            OutputMessage = "";
+            ErrorMessage = "";
             RedirectDirectory = "";
             RedirectionType = RedirectionType.NO_REDIRECT;
             RedirectionPrintMode = RedirectionPrintMode.NULL;
