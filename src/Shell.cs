@@ -158,7 +158,7 @@ namespace CodeCraftersShell
                 File.WriteAllText(redirectionDirectory, message);
             }
             else if (printMode == RedirectionPrintMode.APPEND) {
-                File.AppendAllText(redirectionDirectory, message);
+                File.AppendAllText(redirectionDirectory, message + ShellConstants.SYMB_NEWLINE);
             }
 
         }
