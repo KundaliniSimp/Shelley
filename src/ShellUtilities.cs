@@ -140,5 +140,7 @@ namespace CodeCraftersShell
         }
 
         public static bool IsEnvironmentWindows() => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+
+        public static void PlayAlertBell() => Console.Write(ShellConstants.SYMB_BELL);
     }
 }

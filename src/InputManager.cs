@@ -23,9 +23,13 @@ namespace CodeCraftersShell
                     case ConsoleKey.Tab: 
                         List<string> matches = GetAutocompleteMatches(inputBuffer); 
                         
-                        if (matches.Count == 1) {
+                        if (matches.Count == 0) {
+                            ShellUtilities.PlayAlertBell();
+                        }
+                        else if (matches.Count == 1) {
                             writeBuffer += CompleteInput(matches[0], inputBuffer.Length);
                         }
+                        else { }
                         
                         break;
 
