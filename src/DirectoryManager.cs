@@ -3,12 +3,12 @@ using System.Collections.Generic;
 
 namespace CodeCraftersShell 
 {
-    class PathManager {
+    class DirectoryManager {
 
         readonly string[]? directories;
         readonly string? userHomeDir;
 
-        public PathManager() {
+        public DirectoryManager() {
 
             string? envPath = Environment.GetEnvironmentVariable(ShellConstants.ENV_VAR_PATH);
 
@@ -36,8 +36,15 @@ namespace CodeCraftersShell
             return null;
         }
 
-        public string GetCurrentDir() {
-            return Environment.CurrentDirectory;
+        public string GetCurrentDir() => Environment.CurrentDirectory;
+        
+        public bool FileExists(string userFile) {
+
+            if (userFile.LastIndexOf(ShellConstants.ENV_DIR_SEPARATOR) == -1) {     // if only file name provided, check current directory
+                return File.Exists($"{GetCurrentDir()}{ShellConstants.ENV_DIR_SEPARATOR}{userFile}");
+            }
+
+            return File.Exists(userFile);
         }
 
         public bool TrySetDir(string userDir) {

@@ -8,13 +8,15 @@ namespace CodeCraftersShell
     class Shell
     {
         bool isRunning;
-        PathManager pathManager;
+        DirectoryManager directoryManager;
+        InputManager inputManager;
 
         public Shell() {
 
             Console.Title = ShellConstants.APP_TITLE;
             isRunning = false;
-            pathManager = new();
+            directoryManager = new();
+            inputManager = new();
         }
 
         public void Run() {
@@ -33,20 +35,23 @@ namespace CodeCraftersShell
             Print(response);
         }
 
-        static string Read() {
+        string Read() {
 
-            Console.Write($"{ShellConstants.SYMB_PROMPT} ");
-            string? userInput = Console.ReadLine();
+            Console.Write(ShellConstants.NEW_PROMPT);
+            string? userInput = inputManager.GetUserInput();
+
+            Console.Write(ShellConstants.SYMB_NEWLINE);
 
             if (userInput != null) {
                 return userInput.TrimStart();
             }
+
             return "";
         }
 
         CommandResponse Eval(string userInput) {
 
-            string[] arguments = ParseInput(userInput);
+            string[] arguments = ShellUtilities.ParseInput(userInput);
 
             if (arguments.Length < 1) {
                 return new CommandResponse();
@@ -55,79 +60,18 @@ namespace CodeCraftersShell
             string command = arguments[0];
             CommandResponse response = new();
 
-            response = GetRedirectionData(ref arguments, response);
+            Redirection.GetRedirectionData(ref arguments, response);
 
             switch (command) {
-                case ShellConstants.CMD_ECHO: response.OutputMessage = CmdEcho(arguments); break;
-                case ShellConstants.CMD_EXIT: isRunning = false; break;
-                case ShellConstants.CMD_TYPE: response.OutputMessage = CmdType(arguments); break;
-                case ShellConstants.CMD_PWD: response.OutputMessage = CmdPwd(); break;
-                case ShellConstants.CMD_CD: response.OutputMessage = CmdCd(arguments); break;
+                case ShellConstants.CMD_ECHO: CmdEcho(arguments, response); break;
+                case ShellConstants.CMD_TYPE: CmdType(arguments, response); break;
+                case ShellConstants.CMD_PWD: CmdPwd(response); break;
+                case ShellConstants.CMD_CD: CmdCd(arguments, response); break;
+                case ShellConstants.CMD_CAT: CmdCat(arguments, response); break;
+                case ShellConstants.CMD_LS: CmdLs(arguments, response); break;
                 case ShellConstants.CMD_CLEAR: CmdClear(); break;
-
-                default:
-                   bool runOutcome = CmdTryRun(arguments, response);
-                    
-                   if (!runOutcome) {
-                        response.OutputMessage = $"{command}: {ShellConstants.RESP_INVALID_CMD}";
-                   }
-
-                   break;
-            }
-
-            return response;
-        }
-
-        CommandResponse GetRedirectionData(ref string[] arguments, CommandResponse response) {
-
-            string redirectFlag = "";
-            string redirectDirectory = "";
-            int redirectFlagIndex = -1;
-            int end = arguments.Length - 1;
-
-            for (int i = 0; i < arguments.Length; ++i) {
-                if (arguments[i][arguments[i].Length - 1] == ShellConstants.FLAG_REDIRECT_OUTPUT_DEFAULT[0]) {
-                    redirectFlag = arguments[i];
-                    redirectFlagIndex = i;
-
-                    if (i < end) {
-                        redirectDirectory = arguments[i + 1];
-                    }
-
-                    break;
-                }
-            }
-
-            if (String.IsNullOrEmpty(redirectFlag) || String.IsNullOrEmpty(redirectDirectory)) {      // complete redirection data not found
-                goto exit;
-            }
-
-            response.RedirectDirectory = redirectDirectory;
-
-            switch (redirectFlag) {
-                case ShellConstants.FLAG_REDIRECT_OUTPUT_DEFAULT:
-                case ShellConstants.FLAG_REDIRECT_OUTPUT_NEW:
-                    response.RedirectionType = RedirectionType.STD_OUTPUT;
-                    response.RedirectionPrintMode = RedirectionPrintMode.NEW;
-                    break;
-                case ShellConstants.FLAG_REDIRECT_OUTPUT_APPEND_DEFAULT:
-                case ShellConstants.FLAG_REDIRECT_OUTPUT_APPEND:
-                    response.RedirectionType = RedirectionType.STD_OUTPUT;
-                    response.RedirectionPrintMode = RedirectionPrintMode.APPEND;
-                    break;
-                case ShellConstants.FLAG_REDIRECT_ERROR_NEW:
-                    response.RedirectionType = RedirectionType.STD_ERROR;
-                    response.RedirectionPrintMode = RedirectionPrintMode.NEW;
-                    break;
-                case ShellConstants.FLAG_REDIRECT_ERROR_APPEND:
-                    response.RedirectionType = RedirectionType.STD_ERROR;
-                    response.RedirectionPrintMode = RedirectionPrintMode.APPEND;
-                    break;
-            }
-
-        exit:
-            if (redirectFlagIndex > -1) {
-                Array.Resize(ref arguments, redirectFlagIndex);             // truncate redirection data from arguments
+                case ShellConstants.CMD_EXIT: CmdExit(); break;
+                default: CmdTryRun(arguments, response); break;
             }
 
             return response;
@@ -138,7 +82,9 @@ namespace CodeCraftersShell
             ProcessPrintAction(
                 response.OutputMessage, response.RedirectionType == RedirectionType.STD_OUTPUT, response.RedirectDirectory, response.RedirectionPrintMode
             );
-            ProcessPrintAction(response.ErrorMessage, response.RedirectionType == RedirectionType.STD_ERROR, response.RedirectDirectory, response.RedirectionPrintMode);
+            ProcessPrintAction(
+                response.ErrorMessage, response.RedirectionType == RedirectionType.STD_ERROR, response.RedirectDirectory, response.RedirectionPrintMode
+            );
         }
 
         static void ProcessPrintAction(string message, bool isRedirected, string redirectionDirectory = "", RedirectionPrintMode printMode = RedirectionPrintMode.NULL) {
@@ -159,27 +105,25 @@ namespace CodeCraftersShell
             }
             else if (printMode == RedirectionPrintMode.APPEND) {
                 if (!File.Exists(redirectionDirectory)) {
-                    File.AppendAllText(redirectionDirectory, message);
+                    File.WriteAllText(redirectionDirectory, message);
                 }
                 else {
-
-                    int hasCharacters;
+                    int firstCharacterIndex;
                     using (StreamReader reader = new(redirectionDirectory)) {
-                        hasCharacters = reader.Peek();
+                        firstCharacterIndex = reader.Peek();
                     }
 
-                    File.AppendAllText(redirectionDirectory, $"{(hasCharacters > -1 ? ShellConstants.SYMB_NEWLINE : "")}{message}");
+                    File.AppendAllText(redirectionDirectory, $"{(firstCharacterIndex > -1 ? ShellConstants.SYMB_NEWLINE : "")}{message}");
                 }
             }
-
         }
 
-        static string CmdEcho(string[] arguments) {
+        static void CmdEcho(string[] arguments, CommandResponse response) {
 
             string output = "";
 
             if (arguments.Length == 1) {
-                return output;
+                return;
             }
 
             for (int i = 1; i < arguments.Length; ++i) {
@@ -190,171 +134,40 @@ namespace CodeCraftersShell
                 }
             }
 
-            return output;
+            response.OutputMessage = output;
         }
 
-        string CmdType(string[] arguments) {
+        void CmdType(string[] arguments, CommandResponse response) {
 
             if (arguments.Length < 2) {
-                return "";
+                return;
             }
 
             string command = arguments[1];
 
             if (ShellConstants.BUILTINS.Contains(command)) {
-                return $"{command} {ShellConstants.RESP_VALID_TYPE}";
+                response.OutputMessage = $"{command} {ShellConstants.RESP_VALID_TYPE}";
+                return;
             }
 
-            string? executablePath = pathManager.GetExecutablePath(command);
+            string? executablePath = directoryManager.GetExecutablePath(command);
 
             if (executablePath != null) {
-                return $"{command} {ShellConstants.RESP_VALID_PATH} {executablePath}";
+                response.OutputMessage = $"{command} {ShellConstants.RESP_VALID_PATH} {executablePath}";
+                return;
             }
 
-            return $"{command}: {ShellConstants.RESP_INVALID_TYPE}";
+            response.OutputMessage = $"{command}: {ShellConstants.RESP_INVALID_TYPE}";
         }
 
-        string[] ParseInput(string userInput) {
-
-            List<string> arguments = new();
-            string currentArg = "";
-            int end = userInput.Length - 1;
-
-            for (int i = 0; i < userInput.Length; ++i) {
-
-                if (userInput[i] == ShellConstants.SYMB_ESCAPE) {
-                    if (i == end || !ShellConstants.ESCAPABLES.Contains(userInput[i + 1])) {  // a non-escaping backslash
-                        goto pushChar;
-                    }
-
-                    ++i;                     
-                    goto pushChar;                                               // backslash precedes an escapable char
-                }
-
-                if (Char.IsWhiteSpace(userInput[i])) {
-                    if (currentArg.Length > 0) {                                // argument break
-                        arguments.Add(currentArg);
-                        currentArg = "";
-                    }
-                    continue;                                                 // skip whitespace
-                }
-
-                if (ShellConstants.SYMB_QUOTES.Contains(userInput[i])) {
-                    string literal = "";
-                    int jumpPosition = 0;
-
-                    switch (userInput[i]) {
-                        case ShellConstants.SYMB_QUOTE_SINGLE:
-                            jumpPosition = TryExtractSingleQuote(userInput, i, out literal); break;
-                        case ShellConstants.SYMB_QUOTE_DOUBLE:
-                            jumpPosition = TryExtractDoubleQuote(userInput, i, out literal); break;
-                    }
-                    
-                    currentArg += literal;
-
-                    if (jumpPosition >= 0) {
-                        i = jumpPosition;
-                        continue;
-                    }
-                }
-
-            pushChar:
-                currentArg += userInput[i];
-            }
-
-            if (currentArg.Length > 0) {         // clear argument buffer
-                arguments.Add(currentArg);    
-            }
-
-            return arguments.ToArray();
-        }
-
-        static int TryExtractSingleQuote(string userInput, int startPosition, out string literal) {
-
-            int quoteStart = startPosition;
-            int quoteEnd = userInput.IndexOf(ShellConstants.SYMB_QUOTE_SINGLE, quoteStart + 1);
-            literal = "";
-
-            if (quoteEnd == -1) {              // no matching quote found
-                return -1;
-            }
-
-            if (quoteEnd - quoteStart < 2) {  // quotes match but literal is empty
-                return quoteEnd;
-            }
-
-            literal = userInput.Substring(quoteStart + 1, quoteEnd - (quoteStart + 1));
-
-            return quoteEnd;
-        }
-
-        static int TryExtractDoubleQuote(string userInput, int startPosition, out string literal) {
-
-            int quoteStart = startPosition;
-            int quoteEnd = quoteStart;
-            literal = "";
-
-            while (quoteEnd != -1) {
-                quoteEnd = userInput.IndexOf(ShellConstants.SYMB_QUOTE_DOUBLE, quoteEnd + 1);
-
-                if (quoteEnd == -1) {
-                    return quoteEnd;
-                }
-
-                if (userInput[quoteEnd - 1] != ShellConstants.SYMB_ESCAPE) {
-                    break;
-                }
-
-                int i = quoteEnd - 1;
-                int escapeCount = 0;
-
-                while (userInput[i] == ShellConstants.SYMB_ESCAPE) {
-                    ++escapeCount;
-                    --i;
-                }
-
-                if (escapeCount % 2 == 0) {
-                    break;
-                }
-                else {
-                    continue;
-                }
-            }
-
-            if (quoteEnd - quoteStart < 2) {
-                return quoteEnd;
-            }
-
-            literal = userInput.Substring(quoteStart + 1, quoteEnd - (quoteStart + 1));
-            literal = ParseDoubleQuotes(literal);
-
-            return quoteEnd;
-        }
-
-        static string ParseDoubleQuotes(string literal) {
-
-            string parsedLiteral = "";
-            int end = literal.Length - 1;
-
-            for (int i = 0; i < literal.Length; ++i) {
-                if (literal[i] == ShellConstants.SYMB_ESCAPE && i < end) {
-                    if (ShellConstants.DOUBLE_QUOTE_ESCAPABLES.Contains(literal[i + 1])) {
-                        ++i;
-                    }
-                }
-                parsedLiteral += literal[i];
-            }
-
-            return parsedLiteral;
-        }
-
-        bool CmdTryRun(string[] arguments, CommandResponse response) {
+        void CmdTryRun(string[] arguments, CommandResponse response) {
 
             string command = arguments[0];
-            string? executablePath = pathManager.GetExecutablePath(command);
+            string? executablePath = directoryManager.GetExecutablePath(command);
 
             if (executablePath == null) {
-                return false;
+                response.OutputMessage = $"{command}: {ShellConstants.RESP_INVALID_CMD}";
+                return;
             }
 
             ProcessStartInfo processConfig = new(command);
@@ -370,7 +183,7 @@ namespace CodeCraftersShell
             Process? currentProcess = Process.Start(processConfig);
 
             if (currentProcess == null) {
-                return false;
+                return;
             }
 
             response.OutputMessage = currentProcess.StandardOutput.ReadToEnd().TrimEnd();
@@ -380,43 +193,60 @@ namespace CodeCraftersShell
 
                 Thread.Sleep(ShellConstants.SLEEP_INTERVAL);
             }
-
-            return true;
         }
         
-        string CmdPwd() {
+        void CmdPwd(CommandResponse response) {
 
-            return pathManager.GetCurrentDir();
+            response.OutputMessage = directoryManager.GetCurrentDir();
         }
 
-        string CmdCd(string[] arguments) {
+        void CmdCd(string[] arguments, CommandResponse response) {
 
             if (arguments.Length < 2) {
-                return "";
+                return;
             }
 
             string userDir = arguments[1];
 
-            if (pathManager.TrySetDir(userDir)) {
-                return "";
+            if (directoryManager.TrySetDir(userDir)) {
+                return;
             }
 
-            return $"{ShellConstants.CMD_CD}: {userDir}: {ShellConstants.RESP_INVALID_DIR}";
+            response.OutputMessage = $"{ShellConstants.CMD_CD}: {userDir}: {ShellConstants.RESP_INVALID_DIR}";
+        }
+
+        void CmdCat(string[] arguments, CommandResponse response) {
+
+            if (arguments.Length < 2) {
+                return;
+            }
+
+            string userFile = arguments[1];
+
+            if (!directoryManager.FileExists(userFile)) {
+                response.OutputMessage = $"{ShellConstants.CMD_CAT}: {userFile}: {ShellConstants.RESP_INVALID_DIR}";
+                return;
+            }
+
+            using (StreamReader reader = new(userFile)) {
+                response.OutputMessage = reader.ReadToEnd();
+            }
+
+            response.OutputMessage = response.OutputMessage.TrimEnd();
+        }
+
+        void CmdLs(string[] arguments, CommandResponse response) {
+
+
         }
 
         static void CmdClear() {
 
             Console.Clear();
         }
-
-        public static bool IsEnvironmentWindows() {
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
-                return true;
-            }
-            else {
-                return false;
-            }
+        
+        void CmdExit() {
+            isRunning = false;
         }
     }
 }
