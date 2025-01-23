@@ -9,6 +9,7 @@
         public const char SYMB_DOLLAR = '$';
         public const char SYMB_WHITESPACE = (char)32;
         public const char SYMB_NEWLINE = '\n';
+        public const char SYMB_ESCAPABLE_N = 'n';
         public const string FLAG_REDIRECT_OUTPUT_DEFAULT = ">";
         public const string FLAG_REDIRECT_OUTPUT_NEW = "1>";
         public const string FLAG_REDIRECT_OUTPUT_APPEND_DEFAULT = ">>";
@@ -44,6 +45,6 @@
         public static readonly HashSet<char> ESCAPABLES = new(
             [SYMB_WHITESPACE, SYMB_ESCAPE, SYMB_QUOTE_SINGLE, SYMB_QUOTE_DOUBLE, SYMB_NEWLINE]
         );
-        public static readonly HashSet<char> DOUBLE_QUOTE_ESCAPABLES = new([SYMB_ESCAPE, SYMB_DOLLAR, SYMB_QUOTE_DOUBLE]);
+        public static readonly HashSet<char> DOUBLE_QUOTE_ESCAPABLES = new([SYMB_ESCAPE, SYMB_DOLLAR, SYMB_QUOTE_DOUBLE, SYMB_ESCAPABLE_N]);
     }
 }
