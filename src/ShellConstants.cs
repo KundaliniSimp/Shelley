@@ -43,8 +43,8 @@
         public static readonly HashSet<string> BUILTINS = new([CMD_ECHO, CMD_EXIT, CMD_TYPE, CMD_PWD, CMD_CD, CMD_CAT, CMD_LS, CMD_CLEAR]);
         public static readonly HashSet<char> SYMB_QUOTES = new([SYMB_QUOTE_SINGLE, SYMB_QUOTE_DOUBLE]);
         public static readonly HashSet<char> ESCAPABLES = new(
-            [SYMB_WHITESPACE, SYMB_ESCAPE, SYMB_QUOTE_SINGLE, SYMB_QUOTE_DOUBLE, SYMB_NEWLINE]
+            [SYMB_WHITESPACE, SYMB_ESCAPE, SYMB_QUOTE_SINGLE, SYMB_QUOTE_DOUBLE, SYMB_NEWLINE, SYMB_ESCAPABLE_N]
         );
-        public static readonly HashSet<char> DOUBLE_QUOTE_ESCAPABLES = new([SYMB_ESCAPE, SYMB_DOLLAR, SYMB_QUOTE_DOUBLE, SYMB_ESCAPABLE_N]);
+        public static readonly HashSet<char> DOUBLE_QUOTE_ESCAPABLES = new([SYMB_ESCAPE, SYMB_DOLLAR, SYMB_QUOTE_DOUBLE]);
     }
 }
