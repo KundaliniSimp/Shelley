@@ -16,7 +16,7 @@ namespace CodeCraftersShell
             Console.Title = ShellConstants.APP_TITLE;
             isRunning = false;
             directoryManager = new();
-            inputManager = new();
+            inputManager = new(directoryManager.GetAllPathExecutables());
         }
 
         public void Run() {

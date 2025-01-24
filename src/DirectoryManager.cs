@@ -5,15 +5,16 @@ namespace CodeCraftersShell
 {
     class DirectoryManager {
 
-        readonly string[]? directories;
         readonly string? userHomeDir;
+
+        public readonly string[]? pathDirectories;
 
         public DirectoryManager() {
 
             string? envPath = Environment.GetEnvironmentVariable(ShellConstants.ENV_VAR_PATH);
 
             if (envPath != null) {
-                directories = envPath.Split(ShellConstants.ENV_PATH_SEPARATOR);
+                pathDirectories = envPath.Split(ShellConstants.ENV_PATH_SEPARATOR);
             }
 
             userHomeDir = Environment.GetEnvironmentVariable(ShellConstants.ENV_VAR_HOME);
@@ -21,11 +22,11 @@ namespace CodeCraftersShell
 
         public string? GetExecutablePath(string exeName) {
 
-            if (directories == null) {
+            if (pathDirectories == null) {
                 return null;
             }
 
-            foreach (string dir in directories) {
+            foreach (string dir in pathDirectories) {
                 string fullPath = $"{dir}{ShellConstants.ENV_DIR_SEPARATOR}{exeName}{ShellConstants.ENV_EXECUTABLE_EXT}";
 
                 if (File.Exists(fullPath)) {
@@ -34,6 +35,30 @@ namespace CodeCraftersShell
             }
 
             return null;
+        }
+
+        public string[]? GetAllPathExecutables() {
+
+            if (pathDirectories == null) {
+                return null;
+            }
+
+            List<string> executables = new();
+
+            foreach (string dir in pathDirectories) {
+                try {
+                    string[] dirFiles = Directory.GetFiles(dir);
+
+                    foreach (string file in dirFiles) {
+                        executables.Add(Path.GetFileName(file));
+                    }
+                }
+                catch {
+                    continue;
+                }
+            }
+
+            return executables.ToArray();
         }
 
         public string GetCurrentDir() => Environment.CurrentDirectory;

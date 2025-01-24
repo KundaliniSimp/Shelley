@@ -4,8 +4,26 @@ namespace CodeCraftersShell
 {
     class InputManager
     {
+        
+        enum CursorDirection {
+            LEFT = -1,
+            RIGHT = 1,
+        }
 
-        public InputManager() {}
+        HashSet<string> autocompletable = new();
+
+        public InputManager(string[]? executables) {
+            
+            foreach (string builtin in ShellConstants.BUILTINS) {
+                autocompletable.Add(builtin);
+            }
+
+            if (executables != null) {
+                foreach (string exe in executables) {
+                    autocompletable.Add(exe);
+                }
+            }
+        }
 
         public string? GetUserInput() {
 
@@ -20,6 +38,8 @@ namespace CodeCraftersShell
 
                 switch (currentKey.Key) {
                     case ConsoleKey.Enter: isReading = false; break;
+                    case ConsoleKey.LeftArrow: MoveCursor(CursorDirection.LEFT, inputBuffer.Length); break;
+                    case ConsoleKey.RightArrow: MoveCursor(CursorDirection.RIGHT, inputBuffer.Length); break;
                     case ConsoleKey.Tab: 
                         List<string> matches = GetAutocompleteMatches(inputBuffer); 
                         
@@ -27,13 +47,17 @@ namespace CodeCraftersShell
                             ShellUtilities.PlayAlertBell();
                         }
                         else if (matches.Count == 1) {
-                            writeBuffer += CompleteInput(matches[0], inputBuffer.Length);
+                            writeBuffer += AutocompleteInput(matches[0], inputBuffer.Length);
                         }
                         else { }
                         
                         break;
 
-                    default: writeBuffer += currentKey.KeyChar; break;
+                    default:
+                        if (IsLegalInputChar(currentKey.KeyChar)) {
+                            writeBuffer += currentKey.KeyChar; 
+                        }
+                        break;
                 }
 
                 foreach (char c in writeBuffer) {
@@ -50,16 +74,16 @@ namespace CodeCraftersShell
             List<string> matches = new();
             string input = inputBuffer.ToString();
 
-            foreach (string builtin in ShellConstants.BUILTINS) {
-                if (builtin.StartsWith(input)) {
-                    matches.Add(builtin);
+            foreach (string completion in autocompletable) {
+                if (completion.StartsWith(input)) {
+                    matches.Add(completion);
                 }
             }
 
             return matches;
         }
 
-        string CompleteInput(string completionMatch, int prefixLength) {
+        string AutocompleteInput(string completionMatch, int prefixLength) {
 
             string completion = "";
 
@@ -68,6 +92,26 @@ namespace CodeCraftersShell
             }
 
             return completion + ShellConstants.SYMB_WHITESPACE;
+        }
+
+        void MoveCursor(CursorDirection direction, int inputLength) {
+
+            (int Left, int Top) cursorPosition = Console.GetCursorPosition();
+            int newPosition = cursorPosition.Left + (int)direction;
+
+            if (newPosition > inputLength + ShellConstants.INPUT_BUFFER_START) {
+                return;
+            }
+
+            if (newPosition < ShellConstants.INPUT_BUFFER_START) {
+                return;
+            }
+
+            Console.SetCursorPosition(newPosition, cursorPosition.Top);
+        }
+
+        bool IsLegalInputChar(char character) {
+            return Char.IsWhiteSpace(character) || Char.IsLetterOrDigit(character) || Char.IsSymbol(character) || Char.IsPunctuation(character);
         }
     }
 }

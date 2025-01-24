@@ -36,6 +36,8 @@
         public const string ENV_VAR_HOME = "HOME";
         public const int SLEEP_INTERVAL = 10;
 
+        public static readonly int INPUT_BUFFER_START = NEW_PROMPT.Length;
+
         public static readonly bool IS_WINDOWS = ShellUtilities.IsEnvironmentWindows();
         public static readonly char ENV_DIR_SEPARATOR = IS_WINDOWS ? '\\' : '/';
         public static readonly char ENV_PATH_SEPARATOR = IS_WINDOWS ? ';' : ':';
