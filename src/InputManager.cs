@@ -29,11 +29,11 @@ namespace CodeCraftersShell
 
             StringBuilder inputBuffer = new();
             bool isReading = true;
+            string[] autocompletionCache = Array.Empty<string>();
 
             while (isReading) {
 
                 string writeBuffer = "";
-                string[] autocompletionCache = Array.Empty<string>();
 
                 ConsoleKeyInfo currentKey = Console.ReadKey(true);
 
@@ -111,8 +111,8 @@ namespace CodeCraftersShell
 
             string cache = String.Join(ShellConstants.AUTOCOMPLETION_SEPARATOR, autocompletionCache);
 
-            Console.WriteLine(ShellConstants.SYMB_NEWLINE);
-            Console.WriteLine(cache + ShellConstants.SYMB_NEWLINE);
+            Console.Write(ShellConstants.SYMB_NEWLINE);
+            Console.WriteLine(cache);
         }
 
         void RedrawInput(StringBuilder inputBuffer) {
