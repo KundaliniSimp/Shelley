@@ -33,6 +33,7 @@ namespace CodeCraftersShell
             while (isReading) {
 
                 string writeBuffer = "";
+                string[] autocompletionCache = Array.Empty<string>();
 
                 ConsoleKeyInfo currentKey = Console.ReadKey(true);
 
@@ -41,15 +42,27 @@ namespace CodeCraftersShell
                     case ConsoleKey.LeftArrow: MoveCursor(CursorDirection.LEFT, inputBuffer.Length); break;
                     case ConsoleKey.RightArrow: MoveCursor(CursorDirection.RIGHT, inputBuffer.Length); break;
                     case ConsoleKey.Tab: 
-                        List<string> matches = GetAutocompleteMatches(inputBuffer); 
+
+                        if (autocompletionCache.Length > 0) {
+                            PrintAutocompletionCache(autocompletionCache);
+                            RedrawInput(inputBuffer);
+
+                            autocompletionCache = Array.Empty<string>();
+                            break;
+                        }
+
+                        string[] matches = GetAutocompleteMatches(inputBuffer); 
                         
-                        if (matches.Count == 0) {
+                        if (matches.Length == 0) {
                             ShellUtilities.PlayAlertBell();
                         }
-                        else if (matches.Count == 1) {
+                        else if (matches.Length == 1) {
                             writeBuffer += AutocompleteInput(matches[0], inputBuffer.Length);
                         }
-                        else { }
+                        else if (matches.Length > 1) {
+                            autocompletionCache = matches;
+                            ShellUtilities.PlayAlertBell();
+                        }
                         
                         break;
 
@@ -69,7 +82,7 @@ namespace CodeCraftersShell
             return inputBuffer.ToString();
         }
 
-        List<string> GetAutocompleteMatches(StringBuilder inputBuffer) {
+        string[] GetAutocompleteMatches(StringBuilder inputBuffer) {
 
             List<string> matches = new();
             string input = inputBuffer.ToString();
@@ -80,7 +93,7 @@ namespace CodeCraftersShell
                 }
             }
 
-            return matches;
+            return matches.ToArray();
         }
 
         string AutocompleteInput(string completionMatch, int prefixLength) {
@@ -92,6 +105,19 @@ namespace CodeCraftersShell
             }
 
             return completion + ShellConstants.SYMB_WHITESPACE;
+        }
+
+        void PrintAutocompletionCache(string[] autocompletionCache) {
+
+            string cache = String.Join(ShellConstants.AUTOCOMPLETION_SEPARATOR, autocompletionCache);
+
+            Console.WriteLine(ShellConstants.SYMB_NEWLINE);
+            Console.WriteLine(cache + ShellConstants.SYMB_NEWLINE);
+        }
+
+        void RedrawInput(StringBuilder inputBuffer) {
+
+            Console.Write(ShellConstants.NEW_PROMPT + inputBuffer.ToString());
         }
 
         void MoveCursor(CursorDirection direction, int inputLength) {

@@ -32,6 +32,7 @@
         public const string RESP_INVALID_TYPE = "not found";
         public const string RESP_VALID_PATH = "is";
         public const string RESP_INVALID_DIR = "No such file or directory";
+        public const string AUTOCOMPLETION_SEPARATOR = "  ";
         public const string ENV_VAR_PATH = "PATH";
         public const string ENV_VAR_HOME = "HOME";
         public const int SLEEP_INTERVAL = 10;
