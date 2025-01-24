@@ -51,7 +51,7 @@ namespace CodeCraftersShell
                             break;
                         }
 
-                        string[] matches = GetAutocompleteMatches(inputBuffer); 
+                        string[] matches = GetAutocompleteMatches(inputBuffer);
                         
                         if (matches.Length == 0) {
                             ShellUtilities.PlayAlertBell();
@@ -92,6 +92,8 @@ namespace CodeCraftersShell
                     matches.Add(completion);
                 }
             }
+
+            matches.Sort();
 
             return matches.ToArray();
         }
