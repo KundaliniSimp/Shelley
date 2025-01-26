@@ -62,7 +62,7 @@ namespace CodeCraftersShell
                         else if (matches.Length > 1) {
                             string commonPrefix = GetLongestCommonPrefix(matches);
 
-                            if (commonPrefix.Length > 0) {
+                            if (commonPrefix.Length > 0 && inputBuffer.ToString().Length < commonPrefix.Length) {
                                 writeBuffer += AutocompleteInput(commonPrefix, inputBuffer.Length, false);
                             }
                             else {
