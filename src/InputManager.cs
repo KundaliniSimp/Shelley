@@ -60,8 +60,15 @@ namespace CodeCraftersShell
                             writeBuffer += AutocompleteInput(matches[0], inputBuffer.Length);
                         }
                         else if (matches.Length > 1) {
-                            autocompletionCache = matches;
-                            ShellUtilities.PlayAlertBell();
+                            string commonPrefix = GetLongestCommonPrefix(matches);
+
+                            if (commonPrefix.Length > 0) {
+                                writeBuffer += AutocompleteInput(commonPrefix, inputBuffer.Length);
+                            }
+                            else {
+                                autocompletionCache = matches;
+                                ShellUtilities.PlayAlertBell();
+                            }
                         }
                         
                         break;
@@ -140,6 +147,31 @@ namespace CodeCraftersShell
 
         bool IsLegalInputChar(char character) {
             return Char.IsWhiteSpace(character) || Char.IsLetterOrDigit(character) || Char.IsSymbol(character) || Char.IsPunctuation(character);
+        }
+
+        static string GetLongestCommonPrefix(string[] matches) {
+
+            string shortest = "";
+            string commonPrefix = "";
+            int shortestLen = Int32.MaxValue;
+
+            foreach (string match in matches) {
+                if (match.Length < shortestLen) {
+                    shortest = match;
+                    shortestLen = match.Length;
+                }
+            }
+
+            for (int i = 0; i < shortest.Length; ++i) {
+                for (int j = 0; j < matches.Length; ++j) {
+                    if (shortest[i] != matches[j][i]) {
+                        return commonPrefix;
+                    }
+                }
+                commonPrefix += shortest[i];
+            }
+
+            return commonPrefix;
         }
     }
 }
