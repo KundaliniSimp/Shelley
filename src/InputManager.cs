@@ -55,7 +55,10 @@ namespace CodeCraftersShell
                 Console.Write(writeBuffer);
             }
 
-            return inputBuffer.ToString().TrimStart();
+            string userInput = inputBuffer.ToString().TrimStart();
+            inputBuffer.Clear();
+
+            return userInput;
         }
 
         string ProcessAutocompletion() {
