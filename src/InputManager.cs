@@ -34,7 +34,6 @@ namespace CodeCraftersShell
             while (isReading) {
 
                 string writeBuffer = "";
-
                 ConsoleKeyInfo currentKey = Console.ReadKey(true);
 
                 switch (currentKey.Key) {
