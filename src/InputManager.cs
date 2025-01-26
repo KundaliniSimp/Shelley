@@ -11,9 +11,14 @@ namespace CodeCraftersShell
         }
 
         HashSet<string> autocompletable = new();
+        StringBuilder inputBuffer;
+        string[] autocompletionCache;
 
         public InputManager(string[]? executables) {
-            
+
+            inputBuffer = new();
+            autocompletionCache = Array.Empty<string>();
+
             foreach (string builtin in ShellConstants.BUILTINS) {
                 autocompletable.Add(builtin);
             }
@@ -27,9 +32,7 @@ namespace CodeCraftersShell
 
         public string? GetUserInput() {
 
-            StringBuilder inputBuffer = new();
             bool isReading = true;
-            string[] autocompletionCache = Array.Empty<string>();
 
             while (isReading) {
 
@@ -40,38 +43,7 @@ namespace CodeCraftersShell
                     case ConsoleKey.Enter: isReading = false; break;
                     case ConsoleKey.LeftArrow: MoveCursor(CursorDirection.LEFT, inputBuffer.Length); break;
                     case ConsoleKey.RightArrow: MoveCursor(CursorDirection.RIGHT, inputBuffer.Length); break;
-                    case ConsoleKey.Tab: 
-
-                        if (autocompletionCache.Length > 0) {
-                            PrintAutocompletionCache(autocompletionCache);
-                            RedrawInput(inputBuffer);
-
-                            autocompletionCache = Array.Empty<string>();
-                            break;
-                        }
-
-                        string[] matches = GetAutocompleteMatches(inputBuffer);
-                        
-                        if (matches.Length == 0) {
-                            ShellUtilities.PlayAlertBell();
-                        }
-                        else if (matches.Length == 1) {
-                            writeBuffer += AutocompleteInput(matches[0], inputBuffer.Length);
-                        }
-                        else if (matches.Length > 1) {
-                            string commonPrefix = GetLongestCommonPrefix(matches);
-
-                            if (commonPrefix.Length > 0 && inputBuffer.ToString().Length < commonPrefix.Length) {
-                                writeBuffer += AutocompleteInput(commonPrefix, inputBuffer.Length, false);
-                            }
-                            else {
-                                autocompletionCache = matches;
-                                ShellUtilities.PlayAlertBell();
-                            }
-                        }
-                        
-                        break;
-
+                    case ConsoleKey.Tab: writeBuffer = ProcessAutocompletion(); break;
                     default:
                         if (IsLegalInputChar(currentKey.KeyChar)) {
                             writeBuffer += currentKey.KeyChar; 
@@ -79,13 +51,47 @@ namespace CodeCraftersShell
                         break;
                 }
 
-                foreach (char c in writeBuffer) {
-                    inputBuffer.Append(c);
-                    Console.Write(c);
+                inputBuffer.Append(writeBuffer);
+                Console.Write(writeBuffer);
+            }
+
+            return inputBuffer.ToString().TrimStart();
+        }
+
+        string ProcessAutocompletion() {
+
+            string autocompletionValue = "";
+
+            if (autocompletionCache.Length > 0) {
+                PrintAutocompletionCache(autocompletionCache);
+                RedrawInput(inputBuffer);
+
+                autocompletionCache = Array.Empty<string>();
+                goto exit;
+            }
+
+            string[] matches = GetAutocompleteMatches(inputBuffer);
+
+            if (matches.Length == 0) {
+                ShellUtilities.PlayAlertBell();
+            }
+            else if (matches.Length == 1) {
+                autocompletionValue = AutocompleteInput(matches[0], inputBuffer.Length);
+            }
+            else if (matches.Length > 1) {
+                string commonPrefix = GetLongestCommonPrefix(matches);
+
+                if (commonPrefix.Length > 0 && inputBuffer.ToString().Length < commonPrefix.Length) {
+                    autocompletionValue = AutocompleteInput(commonPrefix, inputBuffer.Length, false);
+                }
+                else {
+                    autocompletionCache = matches;
+                    ShellUtilities.PlayAlertBell();
                 }
             }
 
-            return inputBuffer.ToString();
+        exit:
+            return autocompletionValue;
         }
 
         string[] GetAutocompleteMatches(StringBuilder inputBuffer) {

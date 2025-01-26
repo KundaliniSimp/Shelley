@@ -31,7 +31,7 @@ namespace CodeCraftersShell
         void REPLoop() {
 
             string userInput = Read();
-            CommandResponse response = Eval(userInput);
+            CommandResponse? response = Eval(userInput);
             Print(response);
         }
 
@@ -43,18 +43,18 @@ namespace CodeCraftersShell
             Console.Write(ShellConstants.SYMB_NEWLINE);
 
             if (userInput != null) {
-                return userInput.TrimStart();
+                return userInput;
             }
 
             return "";
         }
 
-        CommandResponse Eval(string userInput) {
+        CommandResponse? Eval(string userInput) {
 
             string[] arguments = ShellUtilities.ParseInput(userInput);
 
             if (arguments.Length < 1) {
-                return new CommandResponse();
+                return null;
             }
 
             string command = arguments[0];
@@ -77,7 +77,11 @@ namespace CodeCraftersShell
             return response;
         }
 
-        static void Print(CommandResponse response) {
+        static void Print(CommandResponse? response) {
+
+            if (response == null) {
+                return;
+            }
 
             ProcessPrintAction(
                 response.OutputMessage, response.RedirectionType == RedirectionType.STD_OUTPUT, response.RedirectDirectory, response.RedirectionPrintMode
