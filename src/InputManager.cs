@@ -63,7 +63,7 @@ namespace CodeCraftersShell
                             string commonPrefix = GetLongestCommonPrefix(matches);
 
                             if (commonPrefix.Length > 0) {
-                                writeBuffer += AutocompleteInput(commonPrefix, inputBuffer.Length);
+                                writeBuffer += AutocompleteInput(commonPrefix, inputBuffer.Length, false);
                             }
                             else {
                                 autocompletionCache = matches;
@@ -105,7 +105,7 @@ namespace CodeCraftersShell
             return matches.ToArray();
         }
 
-        string AutocompleteInput(string completionMatch, int prefixLength) {
+        string AutocompleteInput(string completionMatch, int prefixLength, bool endCompletion = true) {
 
             string completion = "";
 
@@ -113,7 +113,11 @@ namespace CodeCraftersShell
                 completion += completionMatch[i];
             }
 
-            return completion + ShellConstants.SYMB_WHITESPACE;
+            if (endCompletion) {
+                completion += ShellConstants.SYMB_WHITESPACE;
+            }
+                 
+            return completion;
         }
 
         void PrintAutocompletionCache(string[] autocompletionCache) {
