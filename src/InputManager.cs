@@ -10,7 +10,7 @@ namespace CodeCraftersShell
             RIGHT = 1,
         }
 
-        HashSet<string> autocompletable = new();
+        HashSet<string> autocompletionMatches = new();
         StringBuilder inputBuffer;
         string[] autocompletionCache;
 
@@ -20,12 +20,12 @@ namespace CodeCraftersShell
             autocompletionCache = Array.Empty<string>();
 
             foreach (string builtin in ShellConstants.BUILTINS) {
-                autocompletable.Add(builtin);
+                autocompletionMatches.Add(builtin);
             }
 
             if (executables != null) {
                 foreach (string exe in executables) {
-                    autocompletable.Add(exe);
+                    autocompletionMatches.Add(exe);
                 }
             }
         }
@@ -102,7 +102,7 @@ namespace CodeCraftersShell
             List<string> matches = new();
             string input = inputBuffer.ToString();
 
-            foreach (string completion in autocompletable) {
+            foreach (string completion in autocompletionMatches) {
                 if (completion.StartsWith(input)) {
                     matches.Add(completion);
                 }
@@ -158,7 +158,7 @@ namespace CodeCraftersShell
         }
 
         bool IsLegalInputChar(char character) {
-            return Char.IsWhiteSpace(character) || Char.IsLetterOrDigit(character) || Char.IsSymbol(character) || Char.IsPunctuation(character);
+            return Char.IsLetterOrDigit(character) || Char.IsWhiteSpace(character) || Char.IsSymbol(character) || Char.IsPunctuation(character);
         }
 
         static string GetLongestCommonPrefix(string[] matches) {
