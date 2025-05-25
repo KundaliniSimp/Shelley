@@ -24,6 +24,7 @@
         public const string CMD_TYPE = "type";
         public const string CMD_PWD = "pwd";
         public const string CMD_CD = "cd";
+        public const string CMD_HIST = "history";
         public const string CMD_CAT = "cat";
         public const string CMD_LS = "ls";
         public const string CMD_CLEAR = "clear";
@@ -44,7 +45,7 @@
         public static readonly char ENV_PATH_SEPARATOR = IS_WINDOWS ? ';' : ':';
         public static readonly string ENV_EXECUTABLE_EXT = IS_WINDOWS ? ".exe" : "";
 
-        public static readonly HashSet<string> BUILTINS = new([CMD_ECHO, CMD_EXIT, CMD_TYPE, CMD_PWD, CMD_CD, /*CMD_CAT, CMD_LS,*/ CMD_CLEAR]);
+        public static readonly HashSet<string> BUILTINS = new([CMD_ECHO, CMD_EXIT, CMD_TYPE, CMD_PWD, CMD_CD, CMD_HIST, /*CMD_CAT, CMD_LS,*/ CMD_CLEAR]);
         public static readonly HashSet<char> SYMB_QUOTES = new([SYMB_QUOTE_SINGLE, SYMB_QUOTE_DOUBLE]);
         public static readonly HashSet<char> ESCAPABLES = new(
             [SYMB_WHITESPACE, SYMB_ESCAPE, SYMB_QUOTE_SINGLE, SYMB_QUOTE_DOUBLE, SYMB_NEWLINE, SYMB_ESCAPABLE_N]

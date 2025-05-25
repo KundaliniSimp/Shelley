@@ -67,8 +67,8 @@ namespace CodeCraftersShell
                 case ShellConstants.CMD_TYPE: CmdType(arguments, response); break;
                 case ShellConstants.CMD_PWD: CmdPwd(response); break;
                 case ShellConstants.CMD_CD: CmdCd(arguments, response); break;
-                //case ShellConstants.CMD_CAT: CmdCat(arguments, response); break;
-                //case ShellConstants.CMD_LS: CmdLs(arguments, response); break;
+                case ShellConstants.CMD_CAT: CmdCat(arguments, response); break;
+                case ShellConstants.CMD_LS: CmdLs(arguments, response); break;
                 case ShellConstants.CMD_CLEAR: CmdClear(); break;
                 case ShellConstants.CMD_EXIT: CmdExit(); break;
                 default: CmdTryRun(arguments, response); break;
@@ -190,7 +190,6 @@ namespace CodeCraftersShell
             response.ErrorMessage = currentProcess.StandardError.ReadToEnd().TrimEnd();
 
             while (!currentProcess.HasExited) {
-
                 Thread.Sleep(ShellConstants.SLEEP_INTERVAL);
             }
         }
@@ -235,8 +234,9 @@ namespace CodeCraftersShell
             response.OutputMessage = response.OutputMessage.TrimEnd();
         }
 
+        // TODO: implement
         void CmdLs(string[] arguments, CommandResponse response) {
-
+            return;
 
         }
 
