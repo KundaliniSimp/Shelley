@@ -72,7 +72,7 @@ namespace CodeCraftersShell
                 case ShellConstants.CMD_TYPE: CmdType(arguments, response); break;
                 case ShellConstants.CMD_PWD: CmdPwd(response); break;
                 case ShellConstants.CMD_CD: CmdCd(arguments, response); break;
-                case ShellConstants.CMD_HIST: CmdHistory(response); break;
+                case ShellConstants.CMD_HIST: CmdHistory(arguments, response); break;
                 //case ShellConstants.CMD_CAT: CmdCat(arguments, response); break;
                 //case ShellConstants.CMD_LS: CmdLs(arguments, response); break;
                 case ShellConstants.CMD_CLEAR: CmdClear(); break;
@@ -220,9 +220,23 @@ namespace CodeCraftersShell
             response.OutputMessage = $"{ShellConstants.CMD_CD}: {userDir}: {ShellConstants.RESP_INVALID_DIR}";
         }
 
-        void CmdHistory(CommandResponse response) {
+        void CmdHistory(string[] arguments, CommandResponse response) {
 
-            response.OutputMessage = historyManager.ListHistory();
+            string[] history = historyManager.ListHistory();
+            long historyLimit = history.Length;
+            string historyLiteral = ""; 
+
+            if (arguments.Length > 1) {
+                if (Int64.TryParse(arguments[1], out long limit) && limit > 0) {
+                    historyLimit = limit;
+                }
+            }
+
+            for (int i = history.Length - 1; i >= history.Length - historyLimit; --i) {
+                historyLiteral = history[i] + historyLiteral;
+            }
+
+            response.OutputMessage = historyLiteral;
         }
 
         void CmdCat(string[] arguments, CommandResponse response) {
@@ -257,6 +271,7 @@ namespace CodeCraftersShell
         }
         
         void CmdExit() {
+
             isRunning = false;
         }
     }

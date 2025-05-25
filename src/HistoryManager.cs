@@ -20,16 +20,13 @@ namespace CodeCraftersShell
             historyBuffer.Add(String.Join(ShellConstants.SYMB_WHITESPACE, arguments));
         }
 
-        public string ListHistory() {
+        public string[] ListHistory() {
 
-            string history = "";
+            string[] history = new string[historyBuffer.Count];
 
             for (int i = 0; i < historyBuffer.Count; ++i) {
-                history += $"{ShellConstants.HIST_LEFT_TAB}{i}{ShellConstants.HIST_MIDDLE_TAB}{historyBuffer[i]}";
+                history[i] = $"{ShellConstants.HIST_LEFT_TAB}{i}{ShellConstants.HIST_MIDDLE_TAB}{historyBuffer[i]}{(i < historyBuffer.Count - 1 ? ShellConstants.SYMB_NEWLINE : '\0')}";
 
-                if (i < historyBuffer.Count - 1) {
-                    history += ShellConstants.SYMB_NEWLINE;
-                }
             }
 
             return history;
