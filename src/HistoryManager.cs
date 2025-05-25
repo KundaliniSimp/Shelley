@@ -25,7 +25,11 @@ namespace CodeCraftersShell
             string history = "";
 
             for (int i = 0; i < historyBuffer.Count; ++i) {
-                history += $"{ShellConstants.HIST_LEFT_TAB}{i}{ShellConstants.HIST_MIDDLE_TAB}{historyBuffer[i]}{ShellConstants.SYMB_NEWLINE}";
+                history += $"{ShellConstants.HIST_LEFT_TAB}{i}{ShellConstants.HIST_MIDDLE_TAB}{historyBuffer[i]}";
+
+                if (i < historyBuffer.Count - 1) {
+                    history += ShellConstants.SYMB_NEWLINE;
+                }
             }
 
             return history;
