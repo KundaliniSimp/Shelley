@@ -36,6 +36,8 @@
         public const string AUTOCOMPLETION_SEPARATOR = "  ";
         public const string ENV_VAR_PATH = "PATH";
         public const string ENV_VAR_HOME = "HOME";
+        public const string HIST_LEFT_TAB = "    ";
+        public const string HIST_MIDDLE_TAB = "  ";
         public const int SLEEP_INTERVAL = 10;
 
         public static readonly int INPUT_BUFFER_START = NEW_PROMPT.Length;

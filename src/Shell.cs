@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 
 namespace CodeCraftersShell
 {
@@ -10,12 +11,14 @@ namespace CodeCraftersShell
         bool isRunning;
         DirectoryManager directoryManager;
         InputManager inputManager;
+        HistoryManager historyManager;
 
         public Shell() {
 
             Console.Title = ShellConstants.APP_TITLE;
             isRunning = false;
             directoryManager = new();
+            historyManager = new();
             inputManager = new(directoryManager.GetAllPathExecutables());
         }
 
@@ -57,6 +60,8 @@ namespace CodeCraftersShell
                 return new CommandResponse();
             }
 
+            historyManager.AddToHistory(arguments);
+
             string command = arguments[0];
             CommandResponse response = new();
 
@@ -67,6 +72,7 @@ namespace CodeCraftersShell
                 case ShellConstants.CMD_TYPE: CmdType(arguments, response); break;
                 case ShellConstants.CMD_PWD: CmdPwd(response); break;
                 case ShellConstants.CMD_CD: CmdCd(arguments, response); break;
+                case ShellConstants.CMD_HIST: CmdHistory(response); break;
                 //case ShellConstants.CMD_CAT: CmdCat(arguments, response); break;
                 //case ShellConstants.CMD_LS: CmdLs(arguments, response); break;
                 case ShellConstants.CMD_CLEAR: CmdClear(); break;
@@ -212,6 +218,11 @@ namespace CodeCraftersShell
             }
 
             response.OutputMessage = $"{ShellConstants.CMD_CD}: {userDir}: {ShellConstants.RESP_INVALID_DIR}";
+        }
+
+        void CmdHistory(CommandResponse response) {
+
+            response.OutputMessage = historyManager.ListHistory();
         }
 
         void CmdCat(string[] arguments, CommandResponse response) {
